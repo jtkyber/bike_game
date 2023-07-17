@@ -5,3 +5,18 @@ export interface IPlat {
 	y: number;
 	l: number;
 }
+
+interface IPlatform {
+	y: number;
+	len: number;
+}
+
+interface ILevel {
+	platforms: IPlatform[];
+	platformTexture: string;
+	backgroundImg: string;
+}
+
+export interface IGameObject {
+	levels: ILevel[];
+}

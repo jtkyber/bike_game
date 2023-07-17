@@ -1,8 +1,18 @@
 const path = require('path');
 const glob = require('glob');
 
-module.exports = {
+const dev = {
+	mode: 'development',
+	devtool: 'inline-source-map',
+};
+
+const prod = {
 	mode: 'production',
+	devtool: 'source-map',
+};
+
+module.exports = {
+	...dev,
 	entry: glob.sync('./src/**/*.ts'),
 	module: {
 		rules: [
