@@ -1,4 +1,4 @@
-import gameObject from '../public/gameObject.js';
+import gameObject from '../public/gameObject';
 import Platforms from './platforms';
 import Player from './player';
 
@@ -46,7 +46,7 @@ const setSpdIncInterval = () => {
 const startGame = () => {
 	Object.freeze(gameObject);
 	player = new Player(ctx, world);
-	platforms = new Platforms(ctx, world, player, frameRate, gameObject);
+	platforms = new Platforms(ctx, world, player, gameObject);
 	gameLoop();
 };
 

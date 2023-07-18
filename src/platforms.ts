@@ -1,48 +1,48 @@
 import Player from './player';
-import { Context, IGameObject, IPlat } from './types';
+import { Context, IGameObject, ILevel, IPlat, IPlatObject, IPlatform, IVisiblePlat } from './types';
 
 export default class Platforms {
 	private ctx: Context;
 	private world: HTMLCanvasElement;
 	private player: Player;
-	private frameRate: number;
-	private platforms: IPlat[];
-	private platXGap: number;
-	private platYGap: number;
 	private speed: number;
-	private minW: number;
-	private maxW: number;
 	private h: number;
-	private platTexture: any;
+	private platTexture: HTMLImageElement;
+	private startSign: HTMLImageElement;
 	private gameObject: IGameObject;
 	private currentLevel: number;
-	private currentPlatform: number;
+	private images: any;
+	private platsVisible: IVisiblePlat[];
 
-	constructor(ctx: Context, world: HTMLCanvasElement, player: Player, frameRate: number, gameObject: any) {
+	constructor(ctx: Context, world: HTMLCanvasElement, player: Player, gameObject: any) {
 		this.ctx = ctx;
 		this.world = world;
 		this.player = player;
-		this.frameRate = frameRate;
-		this.platforms = [
-			{ x: 0, y: gameObject.levels[0].platforms[0].y, l: gameObject.levels[0].platforms[0].len },
-		];
-		this.platXGap = 10;
-		this.platYGap = 100;
 		this.speed = 20;
-		this.minW = 800;
-		this.maxW = 4000;
 		this.h = 16;
+		// Images ------------------------------------------------
 		this.platTexture = new Image();
 		this.platTexture.src = '../public/platform.png';
+		this.startSign = new Image();
+		this.startSign.src = '../public/start_sign.png';
+		// -------------------------------------------------------
 		this.gameObject = gameObject;
 		this.currentLevel = 0;
-		this.currentPlatform = 0;
+		this.images = {
+			platTexture: this.platTexture,
+			startSign: this.startSign,
+		};
+		this.platsVisible = [
+			{
+				index: 0,
+				x: 0,
+			},
+		];
 	}
 
 	public increaseSpeed() {
-		this.speed += 0.5;
-		this.platXGap = this.speed * 10;
-		// console.log(this.platXGap);
+		// this.speed += 0.5;
+		// this.platXGap = this.speed * 10;
 	}
 
 	public checkForCollision() {
@@ -50,20 +50,22 @@ export default class Platforms {
 			console.log('Ground Collision!!!');
 			return true;
 		}
-		for (let i = 0; i < this.platforms.length; i++) {
+		for (let i = 0; i < this.platsVisible.length; i++) {
+			const platX = this.platsVisible[i].x;
+			const platRef = this.gameObject.levels[this.currentLevel].platforms[this.platsVisible[i].index];
+			const platY = platRef.y;
+			const len = platRef.len;
+
 			if (
-				this.player.x + this.player.w >= this.platforms[i].x && // Check player right collision
-				this.player.x <= this.platforms[i].x + this.platforms[i].l && // Check player left collision
-				this.player.y <= this.platforms[i].y + this.h // Check player top collision
+				this.player.x + this.player.w >= platX && // Check player right collision
+				this.player.x <= platX + len && // Check player left collision
+				this.player.y <= platY + this.h // Check player top collision
 			) {
-				if (
-					this.player.yVelocity < 0 &&
-					Math.abs(this.platforms[i].y - (this.player.y + this.player.h)) < 20
-				) {
+				if (this.player.yVelocity < 0 && Math.abs(platY - (this.player.y + this.player.h)) < 20) {
 					// Land if negative velocity and within 20px
-					this.player.land(this.platforms[i].y);
+					this.player.land(platY);
 					return false;
-				} else if (this.player.y + this.player.h > this.platforms[i].y) {
+				} else if (this.player.y + this.player.h > platY) {
 					// Check player bottom collision
 					console.log('Platform Collision!!!');
 					return true;
@@ -73,76 +75,68 @@ export default class Platforms {
 		return false;
 	}
 
-	// private getNextYValue() {
-	// 	// Next Platform must be at least this value from the previous one
-	// 	const offset = 30;
-	// 	const lastPlat = this.platforms[this.platforms.length - 1];
-
-	// 	// Max Posible Y Value
-	// 	const max =
-	// 		lastPlat.y + this.platYGap < this.world.height
-	// 			? lastPlat.y - this.h + this.platYGap
-	// 			: this.world.height - this.h;
-
-	// 	// Min Posible Y Value
-	// 	const min =
-	// 		lastPlat.y - this.platYGap > this.world.height / 2
-	// 			? lastPlat.y + this.h - this.platYGap
-	// 			: this.world.height / 2;
-
-	// 	// Randomly choose whether next Y is up (2) or down (1)
-	// 	const randOneTwo = Math.ceil(Math.random() * 2);
-	// 	let randPlatY;
-
-	// 	if (randOneTwo === 1) {
-	// 		randPlatY = Math.floor(Math.random() * (max - (lastPlat.y + offset)) + (lastPlat.y + offset));
-	// 	} else {
-	// 		const maxTemp = lastPlat.y - offset;
-	// 		randPlatY = Math.floor(Math.random() * (maxTemp - min) + min);
-	// 	}
-
-	// 	// Set new plat Y value if out of bounds
-	// 	if (randPlatY > this.world.height - this.h) {
-	// 		return this.world.height - this.h - offset;
-	// 	} else if (randPlatY < this.world.height / 2) {
-	// 		return this.world.height / 2 + offset;
-	// 	} else return randPlatY;
-	// }
-
 	private nextPlatform() {
-		this.currentPlatform++;
-		const nextPlat = this.gameObject.levels[this.currentLevel].platforms[this.currentPlatform];
-		if (!nextPlat) console.log('Level Finished');
+		const lastVisiblePlat: IVisiblePlat = this.platsVisible[this.platsVisible.length - 1];
+		const platsRef: IPlatform[] = this.gameObject.levels[this.currentLevel].platforms;
+		const lastPlatRef: IPlatform = platsRef[lastVisiblePlat.index];
+		const nextPlat: IPlatform =
+			this.gameObject.levels[this.currentLevel].platforms[lastVisiblePlat.index + 1];
 
-		this.platforms.push({
-			x:
-				this.platforms[this.platforms.length - 1].x +
-				this.platforms[this.platforms.length - 1].l +
-				Math.random() * (this.platXGap - 10) +
-				10,
-			y: nextPlat.y,
-			// w: Math.random() * (this.maxW - this.minW) + this.minW,
-			l: nextPlat.len,
+		if (!nextPlat) {
+			console.log('No More Platforms');
+			return;
+		}
+
+		this.platsVisible.push({
+			index: lastVisiblePlat.index + 1,
+			x: lastVisiblePlat.x + lastPlatRef.len + lastPlatRef.gapFromLast,
 		});
-		if (this.platforms[0].x + this.platforms[0].l < 0) this.platforms.shift();
+
+		if (this.platsVisible[0].x + platsRef[this.platsVisible[0].index].len < 0) this.platsVisible.shift();
 	}
 
 	public move() {
-		if (
-			this.platforms[this.platforms.length - 1].x + this.platforms[this.platforms.length - 1].l <=
-			this.world.width
-		) {
-			this.nextPlatform();
-		}
+		const platRefLen =
+			this.gameObject.levels[this.currentLevel].platforms[
+				this.platsVisible[this.platsVisible.length - 1].index
+			].len;
 
-		for (let i = 0; i < this.platforms.length; i++) {
-			this.platforms[i].x -= this.speed;
+		const lastPlatX = this.platsVisible[this.platsVisible.length - 1].x;
+
+		if (lastPlatX + platRefLen <= this.world.width) this.nextPlatform();
+
+		for (let i = 0; i < this.platsVisible.length; i++) this.platsVisible[i].x -= this.speed;
+	}
+
+	private drawDecorForPlat(decor: IPlatObject[], platYTop: number, platX: number, platLen: number) {
+		for (let i = 0; i < decor?.length; i++) {
+			const imgSrc = this.images[decor[i].imgInfo.fileName];
+			const decorXVals = decor[i].xLocsOnPlatByPerc;
+			// console.log(platX + platLen);
+
+			for (let i = 0; i < decorXVals?.length; i++) {
+				this.ctx.drawImage(
+					imgSrc,
+					platX + platLen * decorXVals[i],
+					platYTop - decor[i].imgInfo.h + 10,
+					decor[i].imgInfo.w,
+					decor[i].imgInfo.h
+				);
+			}
 		}
 	}
 
 	public draw() {
-		for (let i = 0; i < this.platforms.length; i++) {
-			const imgW = this.platTexture.width * (this.platforms[i].l / this.maxW);
+		for (const plat of this.platsVisible) {
+			const level: ILevel = this.gameObject.levels[this.currentLevel];
+			const imgW = this.platTexture.width * (level.platforms[plat.index].len / level.maxPlatLen);
+
+			const decor: IPlatObject[] =
+				this.gameObject.levels[this.currentLevel].platforms[plat.index]?.decor || [];
+
+			if (decor) {
+				this.drawDecorForPlat(decor, level.platforms[plat.index].y, plat.x, level.platforms[plat.index].len);
+			}
 
 			this.ctx.drawImage(
 				this.platTexture,
@@ -150,12 +144,11 @@ export default class Platforms {
 				0,
 				imgW,
 				this.platTexture.height,
-				this.platforms[i].x,
-				this.platforms[i].y,
-				this.platforms[i].l,
+				plat.x,
+				level.platforms[plat.index].y,
+				level.platforms[plat.index].len,
 				this.h
 			);
-
 			// this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
 			// this.ctx.beginPath();
 			// this.ctx.rect(this.platforms[i].x, this.platforms[i].y, this.platforms[i].w, this.h);
