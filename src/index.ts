@@ -15,6 +15,12 @@ let spdIntervalId: ReturnType<typeof setInterval>;
 // Classes
 let platforms: Platforms, player: Player;
 
+const endGame = () => {
+	if (requestId) cancelAnimationFrame(requestId);
+	requestId = null;
+	clearInterval(spdIntervalId);
+};
+
 const gameLoop = () => {
 	requestId = requestAnimationFrame(gameLoop);
 
@@ -29,17 +35,14 @@ const gameLoop = () => {
 		if (!paused) platforms.move();
 		platforms.draw();
 		player.draw();
-		if (platforms.checkForCollision()) {
-			cancelAnimationFrame(requestId);
-			requestId = null;
-			clearInterval(spdIntervalId);
-		}
+
+		if (platforms.checkForCollision() || platforms.gameOver) endGame();
 	}
 };
 
 const setSpdIncInterval = () => {
 	spdIntervalId = setInterval(() => {
-		platforms.increaseSpeed();
+		// platforms.increaseSpeed();
 	}, 5000);
 };
 

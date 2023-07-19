@@ -20,7 +20,7 @@ export interface IPlatObject {
 export interface IPlatform {
 	y: number;
 	len: number;
-	gapFromLast: number;
+	gapToNext: number;
 	obsticles?: IPlatObject[];
 	decor?: IPlatObject[];
 }
@@ -28,6 +28,7 @@ export interface IPlatform {
 export interface ILevel {
 	platforms: IPlatform[];
 	platformTexture: string;
+	platformH: number | null;
 	backgroundImg: string;
 	maxPlatLen: number;
 }

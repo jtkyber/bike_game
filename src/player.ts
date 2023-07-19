@@ -45,7 +45,7 @@ export default class Player {
 		this.y -= this.yVelocity;
 		this.yVelocity -= this.yAcc;
 
-		this.ctx.fillStyle = 'blue';
+		this.ctx.fillStyle = 'rgb(0, 0, 0)';
 		this.ctx.beginPath();
 		this.ctx.rect(this.x, this.y, this.w, this.h);
 		this.ctx.fill();
