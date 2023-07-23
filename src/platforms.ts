@@ -17,6 +17,7 @@ export default class Platforms {
 	private platsVisible: IVisiblePlat[];
 	private backgroundX: number;
 	public gameOver: boolean;
+	private collisionMargin: number;
 
 	constructor(ctx: Context, world: HTMLCanvasElement, player: Player, gameObject: any) {
 		this.ctx = ctx;
@@ -50,6 +51,7 @@ export default class Platforms {
 		];
 		this.backgroundX = 0;
 		this.gameOver = false;
+		this.collisionMargin = 25;
 	}
 
 	public increaseSpeed() {
@@ -70,15 +72,14 @@ export default class Platforms {
 			const len = platRef.len;
 
 			if (
-				this.player.x + this.player.w >= platX && // Check player right collision
+				this.player.x + this.player.w >= platX + this.collisionMargin && // Check player right collision
 				this.player.x <= platX + len && // Check player left collision
 				this.player.y <= platY + (level.platformH || this.world.height - platY) // Check player top collision
 			) {
 				if (this.player.yVelocity < 0 && Math.abs(platY - (this.player.y + this.player.h)) < 20) {
 					// Land if negative velocity and within 20px
 					this.player.land(platY);
-					return false;
-				} else if (this.player.y + this.player.h > platY) {
+				} else if (this.player.y + this.player.h > platY + this.collisionMargin) {
 					// Check player bottom collision
 					console.log('Platform Collision!!!');
 					return true;
@@ -90,7 +91,7 @@ export default class Platforms {
 
 	private checkObsticleCollision(obsticle: IPlatObject, xVal: number, yVal: number) {
 		if (
-			this.player.x + this.player.w >= xVal && // Check player right collision
+			this.player.x + this.player.w >= xVal + this.collisionMargin && // Check player right collision
 			this.player.x <= xVal + obsticle.imgInfo.w && // Check player left collision
 			this.player.y <= yVal + (obsticle.imgInfo.h || this.world.height - yVal) && // Check player top collision
 			this.player.y + this.player.h > yVal // Check player bottom collision
@@ -121,17 +122,15 @@ export default class Platforms {
 	}
 
 	public move() {
-		const platRefLen =
-			this.gameObject.levels[this.currentLevel].platforms[
-				this.platsVisible[this.platsVisible.length - 1].index
-			].len;
+		const level: ILevel = this.gameObject.levels[this.currentLevel];
+		const platRef: IPlatform = level.platforms[this.platsVisible[this.platsVisible.length - 1].index];
 
 		const lastPlatX = this.platsVisible[this.platsVisible.length - 1].x;
 
-		if (lastPlatX + platRefLen <= this.world.width) this.nextPlatform();
+		if (lastPlatX + platRef.len <= this.world.width) this.nextPlatform();
 
-		for (let i = 0; i < this.platsVisible.length; i++) this.platsVisible[i].x -= this.speed;
-		this.backgroundX -= this.speed / 8;
+		for (let i = 0; i < this.platsVisible.length; i++) this.platsVisible[i].x -= level.speed;
+		this.backgroundX -= level.speed / 8;
 	}
 
 	private drawDecorForPlat(decor: IPlatObject[], platYTop: number, platX: number, platLen: number) {

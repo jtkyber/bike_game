@@ -62,7 +62,10 @@ document.addEventListener('keydown', e => {
 				if (paused) {
 					paused = false;
 					setSpdIncInterval();
-				} else player.jump();
+				} else {
+					if (!player.loadingJump) player.loadingJump = true;
+					// player.jump();
+				}
 			} else {
 				paused = false;
 				setSpdIncInterval();
@@ -82,6 +85,9 @@ document.addEventListener('keyup', e => {
 				paused = true;
 				clearInterval(spdIntervalId);
 			}
+		case 'Space':
+			player.loadingJump = false;
+			player.jump();
 			break;
 	}
 });

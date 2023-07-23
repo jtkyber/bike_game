@@ -21,17 +21,17 @@ const obsticle_rock2: IImgInfo = {
 const levelOne: ILevel = {
 	platforms: [
 		{
-			y: 610,
+			y: 600,
 			len: 2000,
 			gapToNext: 200,
 			decor: [{ imgInfo: decor_startSign, xLocsOnPlatByPerc: [0.1] }],
-			obsticles: [{ imgInfo: obsticle_rock1, xLocsOnPlatByPerc: [0.4] }],
+			obsticles: [{ imgInfo: obsticle_rock1, xLocsOnPlatByPerc: [0.6] }],
 		},
-		{ y: 650, len: 600, gapToNext: 0 },
+		{ y: 700, len: 1000, gapToNext: 0 },
 		{ y: 600, len: 800, gapToNext: 0 },
-		{ y: 700, len: 2000, gapToNext: 0, obsticles: [{ imgInfo: obsticle_rock2, xLocsOnPlatByPerc: [0.4] }] },
-		{ y: 700, len: 700, gapToNext: 0 },
-		{ y: 650, len: 1000, gapToNext: 0 },
+		{ y: 500, len: 2000, gapToNext: 0, obsticles: [{ imgInfo: obsticle_rock2, xLocsOnPlatByPerc: [0.4] }] },
+		{ y: 700, len: 1200, gapToNext: 0 },
+		{ y: 450, len: 1000, gapToNext: 0 },
 		{ y: 650, len: 1000, gapToNext: 0 },
 		{ y: 625, len: 600, gapToNext: 0 },
 		{ y: 600, len: 800, gapToNext: 0 },
@@ -39,10 +39,11 @@ const levelOne: ILevel = {
 		{ y: 650, len: 700, gapToNext: 0 },
 		{ y: 610, len: 1000, gapToNext: 0 },
 	],
-	platformTexture: 'dirtPlat',
-	platformH: null,
+	platformTexture: 'woodPlat',
+	platformH: 16,
 	backgroundImg: '',
 	maxPlatLen: 4000,
+	speed: 15,
 };
 
 const gameObject: IGameObject = {

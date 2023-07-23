@@ -31,6 +31,7 @@ export interface ILevel {
 	platformH: number | null;
 	backgroundImg: string;
 	maxPlatLen: number;
+	speed: number;
 }
 
 export interface IGameObject {
