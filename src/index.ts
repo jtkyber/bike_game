@@ -86,9 +86,6 @@ document.addEventListener('keydown', e => {
 				} else {
 					if (!player.loadingJump) player.loadingJump = true;
 				}
-			} else {
-				paused = false;
-				startGame();
 			}
 			break;
 	}
