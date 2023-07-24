@@ -3,13 +3,15 @@ import { Context } from './types';
 export default class Player {
 	private ctx: Context;
 	private world: HTMLCanvasElement;
-	private bikeImg: HTMLImageElement;
+	private frameImg: HTMLImageElement;
+	private wheelImg: HTMLImageElement;
 	private aspectRatio: number;
 	public x: number;
 	public y: number;
 	public w: number;
 	public h: number;
 	public isInAir: boolean;
+	public jumpVelStartReset: number;
 	public jumpVelStart: number;
 	public yVelocity: number;
 	public yAcc: number;
@@ -17,25 +19,34 @@ export default class Player {
 	private rotationSpeed: number;
 	private isJumping: boolean;
 	public loadingJump: boolean;
+	private wheelRot: number;
+	private rotCoordsForJump: { x: number; y: number };
+	public speed: number;
 
 	constructor(ctx: Context, world: HTMLCanvasElement) {
 		this.ctx = ctx;
 		this.world = world;
-		this.bikeImg = new Image();
-		this.bikeImg.src = '../public/mtb_resized.png';
+		this.frameImg = new Image();
+		this.frameImg.src = '../public/frame.png';
+		this.wheelImg = new Image();
+		this.wheelImg.src = '../public/wheel.png';
 		this.aspectRatio = 1.84;
 		this.x = 100;
 		this.y = 100;
 		this.w = 170;
 		this.h = this.w / this.aspectRatio;
 		this.isInAir = false;
-		this.jumpVelStart = 10;
+		this.jumpVelStartReset = 10;
+		this.jumpVelStart = this.jumpVelStartReset;
 		this.yVelocity = 0;
 		this.yAcc = 0.8;
 		this.rotation = 0;
 		this.rotationSpeed = 0;
 		this.isJumping = false;
 		this.loadingJump = false;
+		this.wheelRot = 0;
+		this.rotCoordsForJump = { x: 0, y: 0 };
+		this.speed = 0;
 	}
 
 	public land(y: number) {
@@ -46,7 +57,7 @@ export default class Player {
 		this.rotation = 0;
 		this.yVelocity = 0;
 		this.y = y - this.h;
-		if (!this.loadingJump) this.jumpVelStart = 10;
+		if (!this.loadingJump) this.jumpVelStart = this.jumpVelStartReset;
 	}
 
 	public jump() {
@@ -60,10 +71,61 @@ export default class Player {
 
 	private loadJump() {
 		if (this.jumpVelStart >= 20) return;
-		this.jumpVelStart += 0.6;
+		this.jumpVelStart += 0.5;
+	}
+
+	private drawFrame() {
+		const yOffset = 5;
+		this.ctx.save();
+		this.ctx.translate(this.rotCoordsForJump.x, this.rotCoordsForJump.y);
+		this.ctx.rotate((this.rotation * Math.PI) / 180);
+		this.ctx.drawImage(
+			this.frameImg,
+			-this.wheelImg.width / 2,
+			-this.wheelImg.height + yOffset,
+			this.w,
+			this.h
+		);
+		this.ctx.restore();
+	}
+
+	private drawWheels() {
+		// console.log(this.wheelImg);
+		this.ctx.save();
+		this.ctx.translate(this.rotCoordsForJump.x, this.rotCoordsForJump.y);
+		this.ctx.rotate((this.rotation * Math.PI) / 180); // Rotate for jump
+		this.ctx.rotate((this.wheelRot * Math.PI) / 180); // Rotate for wheel spin
+		this.ctx.drawImage(
+			this.wheelImg,
+			-this.wheelImg.width / 2,
+			-this.wheelImg.height / 2,
+			this.wheelImg.width,
+			this.wheelImg.height
+		);
+		this.ctx.restore();
+
+		this.ctx.save();
+		this.ctx.translate(this.rotCoordsForJump.x, this.rotCoordsForJump.y);
+		this.ctx.rotate((this.rotation * Math.PI) / 180); // Rotate for jump
+		this.ctx.translate(-this.rotCoordsForJump.x, -this.rotCoordsForJump.y); // Move to start
+		this.ctx.translate(this.x + this.w - this.wheelImg.width / 2, this.rotCoordsForJump.y);
+		this.ctx.rotate((this.wheelRot * Math.PI) / 180); // Rotate for wheel spin
+		this.ctx.translate(-(this.x + this.w - this.wheelImg.width / 2), -this.rotCoordsForJump.y); // Move to start
+		this.ctx.translate(this.rotCoordsForJump.x, this.rotCoordsForJump.y);
+
+		this.ctx.drawImage(
+			this.wheelImg,
+			-(this.rotCoordsForJump.x - this.x) + this.w - this.wheelImg.width,
+			-this.wheelImg.height / 2,
+			this.wheelImg.width,
+			this.wheelImg.height
+		);
+		this.ctx.restore();
 	}
 
 	public draw() {
+		this.wheelRot += this.speed;
+
 		if (this.loadingJump) this.loadJump();
 
 		this.y -= this.yVelocity;
@@ -78,21 +140,17 @@ export default class Player {
 			}
 		}
 
-		// this.ctx.fillStyle = 'rgb(0, 0, 0)';
+		// this.ctx.fillStyle = 'rgb(0, 0, 0, 0.5)';
 		// this.ctx.beginPath();
 		// this.ctx.rect(this.x, this.y, this.w, this.h);
 		// this.ctx.fill();
 
-		this.ctx.save();
-		this.ctx.translate(this.x + this.w * 0.25, this.y + this.h * 0.7);
-		this.ctx.rotate((this.rotation * Math.PI) / 180);
-		this.ctx.drawImage(
-			this.bikeImg,
-			-this.w + this.w * (1 - 0.25),
-			-this.h + this.h * (1 - 0.7),
-			this.w,
-			this.h
-		);
-		this.ctx.restore();
+		this.rotCoordsForJump = {
+			x: this.x + this.wheelImg.width / 2,
+			y: this.y + this.h - this.wheelImg.height / 2,
+		};
+
+		this.drawWheels();
+		this.drawFrame();
 	}
 }

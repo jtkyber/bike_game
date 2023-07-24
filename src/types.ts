@@ -6,14 +6,14 @@ export interface IPlat {
 	l: number;
 }
 
-export interface IImgInfo {
-	fileName: string;
-	w: number;
-	h: number;
-}
+// export interface IImgInfo {
+// 	fileName: string;
+// 	w: number;
+// 	h: number;
+// }
 
 export interface IPlatObject {
-	imgInfo: IImgInfo;
+	name: string;
 	xLocsOnPlatByPerc: number[];
 }
 

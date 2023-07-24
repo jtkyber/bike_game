@@ -5,42 +5,19 @@ export default class Platforms {
 	private ctx: Context;
 	private world: HTMLCanvasElement;
 	private player: Player;
-	public speed: number;
-	private bg_mountains: HTMLImageElement;
-	private woodPlat: HTMLImageElement;
-	private dirtPlat: HTMLImageElement;
-	private startSign: HTMLImageElement;
-	private rock1: HTMLImageElement;
-	private rock2: HTMLImageElement;
 	private gameObject: IGameObject;
-	private currentLevel: number;
-	private platsVisible: IVisiblePlat[];
+	public currentLevel: number;
+	public platsVisible: IVisiblePlat[];
 	private backgroundX: number;
 	public gameOver: boolean;
 	private collisionMargin: number;
+	private imagePaths: any[];
+	private images: any;
 
 	constructor(ctx: Context, world: HTMLCanvasElement, player: Player, gameObject: any) {
 		this.ctx = ctx;
 		this.world = world;
 		this.player = player;
-		this.speed = 20;
-		// Backgrounds -------------------------------------------
-		this.bg_mountains = new Image();
-		this.bg_mountains.src = '../public/bg_mountains.png';
-		// Platforms ---------------------------------------------
-		this.woodPlat = new Image();
-		this.woodPlat.src = '../public/woodPlat.png';
-		this.dirtPlat = new Image();
-		this.dirtPlat.src = '../public/dirtPlat.png';
-		// Decor -------------------------------------------------
-		this.startSign = new Image();
-		this.startSign.src = '../public/start_sign.png';
-		// Obsticles ---------------------------------------------
-		this.rock1 = new Image();
-		this.rock1.src = '../public/rock1.png';
-		this.rock2 = new Image();
-		this.rock2.src = '../public/rock2.png';
-		// -------------------------------------------------------
 		this.gameObject = gameObject;
 		this.currentLevel = 0;
 		this.platsVisible = [
@@ -52,11 +29,40 @@ export default class Platforms {
 		this.backgroundX = 0;
 		this.gameOver = false;
 		this.collisionMargin = 25;
+		this.imagePaths = [
+			'../public/bgMountains.png',
+			// Platform Textures
+			'../public/woodPlat.png',
+			'../public/dirtPlat.png',
+			// Decor
+			'../public/startSign.png',
+			// Obsticles
+			'../public/rock1.png',
+			'../public/rock2.png',
+			'../public/rock3.png',
+		];
+		this.images = {};
 	}
 
-	public increaseSpeed() {
-		// this.speed += 0.5;
-		// this.platXGap = this.speed * 10;
+	public async setUp() {
+		const preloadImages = () => {
+			const promises = this.imagePaths.map((path: string) => {
+				return new Promise((resolve, reject) => {
+					const name = path.split('/').pop()?.split('.')[0];
+					const image = new Image();
+
+					image.src = path;
+					image.onload = () => {
+						resolve([name, image]);
+					};
+					image.onerror = () => reject(`Image failed to load: ${path}`);
+				});
+			});
+			return Promise.all(promises);
+		};
+
+		const imgArraytemp: any[] = await preloadImages();
+		this.images = Object.fromEntries(imgArraytemp);
 	}
 
 	public checkForCollision() {
@@ -79,7 +85,7 @@ export default class Platforms {
 				if (this.player.yVelocity < 0 && Math.abs(platY - (this.player.y + this.player.h)) < 20) {
 					// Land if negative velocity and within 20px
 					this.player.land(platY);
-				} else if (this.player.y + this.player.h > platY + this.collisionMargin) {
+				} else if (this.player.y + this.player.h > platY + (this.player.isInAir ? this.collisionMargin : 0)) {
 					// Check player bottom collision
 					console.log('Platform Collision!!!');
 					return true;
@@ -92,11 +98,12 @@ export default class Platforms {
 	private checkObsticleCollision(obsticle: IPlatObject, xVal: number, yVal: number) {
 		if (
 			this.player.x + this.player.w >= xVal + this.collisionMargin && // Check player right collision
-			this.player.x <= xVal + obsticle.imgInfo.w && // Check player left collision
-			this.player.y <= yVal + (obsticle.imgInfo.h || this.world.height - yVal) && // Check player top collision
+			this.player.x <= xVal + this.images[obsticle.name].width && // Check player left collision
+			this.player.x <= xVal + this.images[obsticle.name].width && // Check player left collision
+			this.player.y <= yVal + (this.images[obsticle.name].height || this.world.height - yVal) && // Check player top collision
 			this.player.y + this.player.h > yVal // Check player bottom collision
 		) {
-			console.log('Collision with: ', obsticle.imgInfo.fileName);
+			console.log('Collision with: ', obsticle.name);
 			this.gameOver = true;
 		}
 	}
@@ -135,16 +142,17 @@ export default class Platforms {
 
 	private drawDecorForPlat(decor: IPlatObject[], platYTop: number, platX: number, platLen: number) {
 		for (let i = 0; i < decor?.length; i++) {
-			const imgSrc: HTMLImageElement = this[decor[i].imgInfo.fileName as keyof this] as HTMLImageElement;
+			const imgSrc: HTMLImageElement = this.images[decor[i].name];
 			const decorXVals = decor[i].xLocsOnPlatByPerc;
 
+			// console.log(this.images[decor[i].name].height);
 			for (let i = 0; i < decorXVals?.length; i++) {
 				this.ctx.drawImage(
 					imgSrc,
 					platX + platLen * decorXVals[i],
-					platYTop - decor[i].imgInfo.h + 10,
-					decor[i].imgInfo.w,
-					decor[i].imgInfo.h
+					platYTop - this.images[decor[i].name].height + 10,
+					this.images[decor[i].name].width,
+					this.images[decor[i].name].height
 				);
 			}
 		}
@@ -152,46 +160,46 @@ export default class Platforms {
 
 	private drawObsticleOnPlat(obsticles: IPlatObject[], platYTop: number, platX: number, platLen: number) {
 		for (let i = 0; i < obsticles?.length; i++) {
-			const imgSrc: HTMLImageElement = this[obsticles[i].imgInfo.fileName as keyof this] as HTMLImageElement;
+			const imgSrc: HTMLImageElement = this.images[obsticles[i].name];
 			const obsticleXVals = obsticles[i].xLocsOnPlatByPerc;
 
 			for (let i = 0; i < obsticleXVals?.length; i++) {
 				this.ctx.drawImage(
 					imgSrc,
 					platX + platLen * obsticleXVals[i],
-					platYTop - obsticles[i].imgInfo.h + 10,
-					obsticles[i].imgInfo.w,
-					obsticles[i].imgInfo.h
+					platYTop - this.images[obsticles[i].name].height + 10,
+					this.images[obsticles[i].name].width,
+					this.images[obsticles[i].name].height
 				);
 
 				this.checkObsticleCollision(
 					obsticles[i],
 					platX + platLen * obsticleXVals[i],
-					platYTop - obsticles[i].imgInfo.h + 10
+					platYTop - this.images[obsticles[i].name].height + 10
 				);
 			}
 		}
 	}
 
 	public draw() {
+		if (!this.images?.bgMountains) return;
 		// Draw BG
 		this.ctx.drawImage(
-			this.bg_mountains,
+			this.images.bgMountains,
 			0,
 			0,
-			this.bg_mountains.width,
-			this.bg_mountains.height,
+			this.images.bgMountains.width,
+			this.images.bgMountains.height,
 			this.backgroundX,
-			this.world.height - this.bg_mountains.height,
-			this.bg_mountains.width,
-			this.bg_mountains.height
+			this.world.height - this.images.bgMountains.height,
+			this.images.bgMountains.width,
+			this.images.bgMountains.height
 		);
 
 		for (const plat of this.platsVisible) {
 			const level: ILevel = this.gameObject.levels[this.currentLevel];
 			const imgW =
-				(<HTMLImageElement>this[level.platformTexture as keyof this]).width *
-				(level.platforms[plat.index].len / level.maxPlatLen);
+				this.images[level.platformTexture].width * (level.platforms[plat.index].len / level.maxPlatLen);
 
 			const platform: IPlatform = this.gameObject.levels[this.currentLevel].platforms[plat.index] || [];
 
@@ -208,11 +216,11 @@ export default class Platforms {
 			}
 
 			this.ctx.drawImage(
-				<HTMLImageElement>this[level.platformTexture as keyof this],
+				this.images[level.platformTexture],
 				0,
 				0,
 				imgW,
-				(<HTMLImageElement>this[level.platformTexture as keyof this]).height,
+				this.images[level.platformTexture].height,
 				plat.x,
 				level.platforms[plat.index].y,
 				level.platforms[plat.index].len,
