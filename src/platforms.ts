@@ -28,7 +28,7 @@ export default class Platforms {
 		];
 		this.backgroundX = 0;
 		this.gameOver = false;
-		this.collisionMargin = 25;
+		this.collisionMargin = 30;
 		this.imagePaths = [
 			'../public/bgMountains.png',
 			// Platform Textures

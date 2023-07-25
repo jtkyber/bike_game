@@ -27,10 +27,10 @@ export default class Player {
 		this.ctx = ctx;
 		this.world = world;
 		this.frameImg = new Image();
-		this.frameImg.src = '../public/frame.png';
+		this.frameImg.src = '../public/frame2.png';
 		this.wheelImg = new Image();
 		this.wheelImg.src = '../public/wheel.png';
-		this.aspectRatio = 1.84;
+		this.aspectRatio = 1.1;
 		this.x = 100;
 		this.y = 100;
 		this.w = 170;
@@ -82,7 +82,7 @@ export default class Player {
 		this.ctx.drawImage(
 			this.frameImg,
 			-this.wheelImg.width / 2,
-			-this.wheelImg.height + yOffset,
+			-this.h + this.wheelImg.height / 2,
 			this.w,
 			this.h
 		);
@@ -90,7 +90,6 @@ export default class Player {
 	}
 
 	private drawWheels() {
-		// console.log(this.wheelImg);
 		this.ctx.save();
 		this.ctx.translate(this.rotCoordsForJump.x, this.rotCoordsForJump.y);
 		this.ctx.rotate((this.rotation * Math.PI) / 180); // Rotate for jump
