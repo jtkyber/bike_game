@@ -1,4 +1,6 @@
 import gameObject from '../public/gameObject';
+import Collisions from './collisions';
+import Hud from './hud';
 import Platforms from './platforms';
 import Player from './player';
 
@@ -16,15 +18,15 @@ let paused = false;
 let levelsStarted = -1;
 
 // Classes
-let platforms: Platforms, player: Player;
+let platforms: Platforms, player: Player, hud: Hud, collisions: Collisions;
 
 const endGame = () => {
 	if (requestId) cancelAnimationFrame(requestId);
 	requestId = null;
-	prepGame();
-	startBtn.style.display = 'block';
-	startBtn.innerHTML = 'Play Again';
-	levelsStarted = -1;
+	// prepGame();
+	// startBtn.style.display = 'block';
+	// startBtn.innerHTML = 'Play Again';
+	// levelsStarted = -1;
 };
 
 const gameLoop = () => {
@@ -46,6 +48,7 @@ const gameLoop = () => {
 		}
 		platforms.draw();
 		player.draw();
+		hud.draw();
 
 		if (platforms.platsVisible?.[0]?.index === 0 && platforms.currentLevel > levelsStarted) {
 			levelsStarted = platforms.currentLevel;
@@ -58,9 +61,7 @@ const gameLoop = () => {
 			}, 1000);
 		}
 
-		if (platforms.checkForCollision() || platforms.gameOver) {
-			endGame();
-		}
+		if (hud.lives === 0) endGame();
 	}
 };
 
@@ -70,9 +71,14 @@ const startGame = () => {
 
 const prepGame = () => {
 	Object.freeze(gameObject);
-	player = new Player(ctx, world);
-	platforms = new Platforms(ctx, world, player, gameObject);
+	hud = new Hud(ctx, world);
+	player = new Player(ctx, world, hud);
+	collisions = new Collisions(ctx, world, player, hud);
+	platforms = new Platforms(ctx, world, player, hud, collisions, gameObject);
 	platforms.setUp();
+
+	startGame();
+	startBtn.style.display = 'none';
 };
 
 prepGame();
@@ -100,9 +106,7 @@ document.addEventListener('keyup', e => {
 				paused = true;
 			}
 		case 'Space':
-			player.loadingJump = false;
 			player.jump();
-			player.jumpVelStart = player.jumpVelStartReset;
 			break;
 	}
 });

@@ -6,11 +6,18 @@ export interface IPlat {
 	l: number;
 }
 
-// export interface IImgInfo {
-// 	fileName: string;
-// 	w: number;
-// 	h: number;
-// }
+export interface ICollisionArgs {
+	x1: number;
+	y1: number;
+	x2: number;
+	y2: number;
+	w1: number;
+	h1: number;
+	w2: number;
+	h2: number;
+	margin: number;
+	object: string;
+}
 
 export interface IPlatObject {
 	name: string;
