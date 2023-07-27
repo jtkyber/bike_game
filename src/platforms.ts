@@ -194,6 +194,7 @@ export default class Platforms {
 			this.images.bgMountains.height
 		);
 
+		let isFalling = true;
 		for (const plat of this.platsVisible) {
 			const level: ILevel = this.gameObject.levels[this.currentLevel];
 			const imgW =
@@ -225,7 +226,7 @@ export default class Platforms {
 				level.platformH || this.world.height - level.platforms[plat.index].y
 			);
 
-			this.collisions.checkForPlatCollision({
+			const isColliding = this.collisions.checkForPlatCollision({
 				x1: this.player.x,
 				y1: this.player.y,
 				x2: plat.x,
@@ -238,10 +239,14 @@ export default class Platforms {
 				object: `${this.currentLevel}_${plat.index}`,
 			});
 
+			if (isColliding) isFalling = false;
+
 			// this.ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
 			// this.ctx.beginPath();
 			// this.ctx.rect(this.platforms[i].x, this.platforms[i].y, this.platforms[i].w, this.h);
 			// this.ctx.fill();
 		}
+
+		if (isFalling) this.player.isInAir = true;
 	}
 }

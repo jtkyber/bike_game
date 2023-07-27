@@ -14,6 +14,19 @@ export default class Hud {
 		this.lastObjectHit = '';
 	}
 
+	public drawJumpCharge(percentCharged: number, x: number, y: number) {
+		const w = 8;
+		const h = 60;
+		const xOffset = 0;
+		const yOffset = -20;
+		this.ctx.strokeStyle = 'rgb(0, 0, 0)';
+		this.ctx.fillStyle = 'rgb(7, 191, 4)';
+		this.ctx.beginPath();
+		this.ctx.rect(x + xOffset, y + yOffset, w, h);
+		this.ctx.stroke();
+		this.ctx.fillRect(x + xOffset, y + yOffset + h, w, -h * percentCharged);
+	}
+
 	public reduceHealth(object: string) {
 		if (this.lastObjectHit === object) return;
 		this.lives -= 1;
@@ -31,7 +44,7 @@ export default class Hud {
 		const scale = 0.06;
 
 		this.ctx.fillStyle = 'red';
-		this.ctx.strokeStyle = 'red';
+		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
 		this.ctx.lineWidth = 2;
 
 		this.ctx.beginPath();

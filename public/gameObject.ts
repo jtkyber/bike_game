@@ -34,7 +34,7 @@ const levelOne: ILevel = {
 		},
 		{
 			y: 600,
-			len: 3000,
+			len: 2000,
 			gapToNext: 200,
 		},
 		{ y: 700, len: 1000, gapToNext: 0, obsticles: [{ name: 'rock1', xLocsOnPlatByPerc: [0.1] }] },

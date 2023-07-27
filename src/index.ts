@@ -76,6 +76,7 @@ const prepGame = () => {
 	collisions = new Collisions(ctx, world, player, hud);
 	platforms = new Platforms(ctx, world, player, hud, collisions, gameObject);
 	platforms.setUp();
+	player.setUp();
 
 	startGame();
 	startBtn.style.display = 'none';
