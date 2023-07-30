@@ -51,4 +51,16 @@ export default class Collisions {
 			this.player.changeToDamagedImgs(object);
 		}
 	}
+
+	public powerUpCollision({ x1, y1, x2, y2, w1, h1, w2, h2, margin, object }: ICollisionArgs): boolean {
+		if (
+			x1 + w1 >= x2 + margin && // Check player right collision
+			x1 <= x2 + w2 && // Check player left collision
+			y1 <= y2 + h2 && // Check player top collision
+			y1 + h1 > y2 // Check player bottom collision
+		) {
+			return true;
+		}
+		return false;
+	}
 }

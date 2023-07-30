@@ -196,28 +196,6 @@ export default class Platforms {
 		}
 	}
 
-	private drawPowerUps(
-		powerUps: IPowerUp[],
-		platYTop: number,
-		platX: number,
-		platLen: number,
-		platIndex: number
-	) {
-		for (let i = 0; i < powerUps?.length; i++) {
-			const imgSrc: HTMLImageElement = this.images[powerUps[i].name];
-			if (!imgSrc) continue;
-			const puX = powerUps[i].xPercAlongPlat;
-
-			this.ctx.drawImage(
-				imgSrc,
-				platX + platLen * puX,
-				platYTop - imgSrc.height + 10,
-				imgSrc.width,
-				imgSrc.height
-			);
-		}
-	}
-
 	private drawBgImage() {
 		if (!this.bgImg1.length) {
 			this.bgImgYOffset = this.gameObject.levels[this.currentLevel].bgImgYOffset;

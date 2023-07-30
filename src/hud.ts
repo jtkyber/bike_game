@@ -54,6 +54,11 @@ export default class Hud {
 		this.lastObjectHit = object;
 	}
 
+	public IncreaseHealth() {
+		if (this.lives === 3) return;
+		this.lives += 1;
+	}
+
 	private drawHeart(sectionW: number, heartIndex: number, sectionStartX: number) {
 		const xShiftInsideBox = 8;
 		const heartContainerW = 50;

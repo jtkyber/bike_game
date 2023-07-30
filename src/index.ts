@@ -75,11 +75,12 @@ const prepGame = async () => {
 	hud = new Hud(ctx, world);
 	player = new Player(ctx, world, hud);
 	collisions = new Collisions(ctx, world, player, hud);
-	abilities = new Abilities(ctx, world, hud);
+	abilities = new Abilities(ctx, world, hud, collisions, player);
 	platforms = new Platforms(ctx, world, player, hud, collisions, abilities, gameObject);
 
 	await platforms.setUp();
 	await player.setUp();
+	await abilities.setUp();
 
 	startGame();
 	startBtn.style.display = 'none';
