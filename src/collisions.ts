@@ -28,12 +28,12 @@ export default class Collisions {
 				return true;
 			} else if (playerBelowPlatTop) {
 				console.log('Platform Collision!');
-				this.hud.lives = 0;
+				this.hud.health = 0;
 				return true;
 			}
 		}
 		if (this.player.y + this.player.h > this.world.height) {
-			this.hud.lives = 0;
+			this.hud.health = 0;
 			console.log('Out Of Bounds Collision!');
 			return true;
 		}
@@ -47,7 +47,7 @@ export default class Collisions {
 			y1 <= y2 + h2 && // Check player top collision
 			y1 + h1 > y2 // Check player bottom collision
 		) {
-			this.hud.reduceHealth(object);
+			this.hud.reduceHealth(object, 30);
 			this.player.changeToDamagedImgs(object);
 		}
 	}

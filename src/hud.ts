@@ -4,7 +4,7 @@ import { Context } from './types';
 export default class Hud {
 	private ctx: Context;
 	private world: HTMLCanvasElement;
-	public lives: number;
+	public health: number;
 	private lastObjectHit: any;
 	public drawingLevelText: boolean;
 	private levelTextOpacity: number;
@@ -16,7 +16,7 @@ export default class Hud {
 	constructor(ctx: Context, world: HTMLCanvasElement) {
 		this.ctx = ctx;
 		this.world = world;
-		this.lives = 3;
+		this.health = 100;
 		this.lastObjectHit = '';
 		this.drawingLevelText = false;
 		this.levelTextOpacity = 0;
@@ -43,93 +43,127 @@ export default class Hud {
 		this.ctx.strokeStyle = 'rgb(0, 0, 0)';
 		this.ctx.fillStyle = 'rgb(7, 191, 4)';
 		this.ctx.beginPath();
-		this.ctx.rect(x + xOffset, y + yOffset, w, h);
+		this.ctx.rect(x + xOffset - 1, y + yOffset - 1, w + 2, h + 2);
 		this.ctx.stroke();
 		this.ctx.fillRect(x + xOffset, y + yOffset + h, w, -h * percentCharged);
 	}
 
-	public reduceHealth(object: string) {
+	public reduceHealth(object: string, amt: number) {
 		if (this.lastObjectHit === object) return;
-		this.lives -= 1;
+		if (this.health - amt <= 0) this.health = 0;
+		else this.health -= amt;
+
 		this.lastObjectHit = object;
 	}
 
-	public IncreaseHealth() {
-		if (this.lives === 3) return;
-		this.lives += 1;
+	public increaseHealth(amt: number) {
+		if (this.health + amt >= 100) this.health = 100;
+		else this.health += amt;
 	}
 
-	private drawHeart(sectionW: number, heartIndex: number, sectionStartX: number) {
-		const xShiftInsideBox = 8;
-		const heartContainerW = 50;
-		const xoff =
-			(heartIndex === 0 ? 0 : heartIndex === 1 ? heartContainerW : heartContainerW * 2) +
-			sectionStartX +
-			xShiftInsideBox;
-		const yoff = 14;
-		const scale = 0.06;
+	// private drawHeart(sectionW: number, heartIndex: number, sectionStartX: number) {
+	// 	const xShiftInsideBox = 8;
+	// 	const heartContainerW = 50;
+	// 	const xoff =
+	// 		(heartIndex === 0 ? 0 : heartIndex === 1 ? heartContainerW : heartContainerW * 2) +
+	// 		sectionStartX +
+	// 		xShiftInsideBox;
+	// 	const yoff = 14;
+	// 	const scale = 0.06;
 
-		this.ctx.fillStyle = 'red';
-		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.6)';
-		this.ctx.lineWidth = 2;
+	// 	this.ctx.fillStyle = 'red';
+	// 	this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.6)';
+	// 	this.ctx.lineWidth = 2;
 
-		this.ctx.beginPath();
-		this.ctx.moveTo(scale * 372 + xoff, scale * 240 + yoff);
-		this.ctx.bezierCurveTo(
-			scale * 487 + xoff,
-			scale * 117 + yoff,
-			scale * 642 + xoff,
-			scale * 262 + yoff,
-			scale * 551 + xoff,
-			scale * 363 + yoff
-		);
-		this.ctx.bezierCurveTo(
-			scale * 541 + xoff,
-			scale * 374 + yoff,
-			scale * 398 + xoff,
-			scale * 550 + yoff,
-			scale * 385 + xoff,
-			scale * 594 + yoff
-		);
-		this.ctx.bezierCurveTo(
-			scale * 371 + xoff,
-			scale * 550 + yoff,
-			scale * 233 + xoff,
-			scale * 379 + yoff,
-			scale * 222 + xoff,
-			scale * 367 + yoff
-		);
-		this.ctx.bezierCurveTo(
-			scale * 121 + xoff,
-			scale * 257 + yoff,
-			scale * 294 + xoff,
-			scale * 125 + yoff,
-			scale * 385 + xoff,
-			scale * 246 + yoff
-		);
+	// 	this.ctx.beginPath();
+	// 	this.ctx.moveTo(scale * 372 + xoff, scale * 240 + yoff);
+	// 	this.ctx.bezierCurveTo(
+	// 		scale * 487 + xoff,
+	// 		scale * 117 + yoff,
+	// 		scale * 642 + xoff,
+	// 		scale * 262 + yoff,
+	// 		scale * 551 + xoff,
+	// 		scale * 363 + yoff
+	// 	);
+	// 	this.ctx.bezierCurveTo(
+	// 		scale * 541 + xoff,
+	// 		scale * 374 + yoff,
+	// 		scale * 398 + xoff,
+	// 		scale * 550 + yoff,
+	// 		scale * 385 + xoff,
+	// 		scale * 594 + yoff
+	// 	);
+	// 	this.ctx.bezierCurveTo(
+	// 		scale * 371 + xoff,
+	// 		scale * 550 + yoff,
+	// 		scale * 233 + xoff,
+	// 		scale * 379 + yoff,
+	// 		scale * 222 + xoff,
+	// 		scale * 367 + yoff
+	// 	);
+	// 	this.ctx.bezierCurveTo(
+	// 		scale * 121 + xoff,
+	// 		scale * 257 + yoff,
+	// 		scale * 294 + xoff,
+	// 		scale * 125 + yoff,
+	// 		scale * 385 + xoff,
+	// 		scale * 246 + yoff
+	// 	);
 
-		this.ctx.save();
-		this.ctx.clip();
-		this.ctx.lineWidth *= 2;
-		this.ctx.stroke();
-		this.ctx.restore();
+	// 	this.ctx.save();
+	// 	this.ctx.clip();
+	// 	this.ctx.lineWidth *= 2;
+	// 	this.ctx.stroke();
+	// 	this.ctx.restore();
 
-		if (heartIndex + 1 <= this.lives) this.ctx.fill();
-	}
+	// 	if (heartIndex + 1 <= this.lives) this.ctx.fill();
+	// }
 
-	private drawLives() {
+	// private drawLives() {
+	// 	const sectionStartX = 30;
+	// 	const sectionStartY = 11;
+	// 	const sectionW = 160;
+	// 	const sectionH = 50;
+	// 	this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+	// 	this.ctx.beginPath();
+	// 	this.ctx.roundRect(sectionStartX, sectionStartY, sectionW, sectionH, 10);
+	// 	this.ctx.fill();
+
+	// 	for (let i = 0; i < 3; i++) {
+	// 		this.drawHeart(sectionW, i, sectionStartX);
+	// 	}
+	// }
+
+	private drawHealth() {
 		const sectionStartX = 30;
 		const sectionStartY = 11;
 		const sectionW = 160;
-		const sectionH = 50;
-		this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+		const sectionH = 12;
+
+		this.ctx.shadowOffsetX = 3;
+		this.ctx.shadowOffsetY = 3;
+		this.ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+		this.ctx.shadowBlur = 4;
+
+		this.ctx.lineWidth = 2;
+		this.ctx.strokeStyle = 'rgba(0, 0, 0, 1)';
 		this.ctx.beginPath();
-		this.ctx.roundRect(sectionStartX, sectionStartY, sectionW, sectionH, 10);
+		this.ctx.roundRect(sectionStartX - 1, sectionStartY - 1, sectionW + 2, sectionH + 2, 10);
+		this.ctx.stroke();
+
+		this.ctx.fillStyle =
+			this.health >= 90
+				? 'rgba(0, 170, 0, 1)'
+				: this.health >= 50 && this.health < 90
+				? 'rgba(170, 170, 0, 1)'
+				: 'rgba(255, 0, 0, 1)';
+		this.ctx.beginPath();
+		this.ctx.roundRect(sectionStartX, sectionStartY, sectionW * (this.health / 100), sectionH, 10);
 		this.ctx.fill();
 
-		for (let i = 0; i < 3; i++) {
-			this.drawHeart(sectionW, i, sectionStartX);
-		}
+		this.ctx.shadowOffsetX = 0;
+		this.ctx.shadowOffsetY = 0;
+		this.ctx.shadowBlur = 0;
 	}
 
 	private drawNextLevelText() {
@@ -152,7 +186,7 @@ export default class Hud {
 	}
 
 	public draw() {
-		this.drawLives();
+		this.drawHealth();
 		this.drawFps();
 
 		if (this.drawingLevelText) this.drawNextLevelText();

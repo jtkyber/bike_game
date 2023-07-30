@@ -156,7 +156,8 @@ export default class Player {
 	}
 
 	private drawWheels() {
-		const rotOffset = this.hud.lives === 3 ? 0 : this.hud.lives === 2 ? 2 : 4;
+		const rotOffset = this.hud.health >= 90 ? 0 : this.hud.health < 90 && this.hud.health >= 50 ? 2 : 4;
+
 		this.ctx.save();
 		this.ctx.translate(this.rotCoordsForJump.x + rotOffset, this.rotCoordsForJump.y);
 		this.ctx.rotate((this.rotation * Math.PI) / 180); // Rotate for jump

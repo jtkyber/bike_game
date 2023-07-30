@@ -79,7 +79,7 @@ export default class Abilities {
 
 			if (collidedWithPowerUp) {
 				this.collectedPowerUps.push(object);
-				this.hud.IncreaseHealth();
+				this.hud.increaseHealth(20);
 			}
 		}
 	}

@@ -61,7 +61,7 @@ const gameLoop = () => {
 		// 	levelsStarted = platforms.currentLevel;
 		// }
 
-		if (hud.lives === 0) endGame();
+		if (hud.health === 0) endGame();
 	}
 };
 
