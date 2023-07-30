@@ -1,4 +1,5 @@
 import gameObject from '../public/gameObject';
+import Abilities from './abilities';
 import Collisions from './collisions';
 import Hud from './hud';
 import Platforms from './platforms';
@@ -7,7 +8,6 @@ import Player from './player';
 const world = <HTMLCanvasElement>document.getElementById('world');
 const ctx = <CanvasRenderingContext2D>world.getContext('2d', { alpha: false });
 
-const titleDiv = <HTMLDivElement>document.querySelector('.titleDiv');
 const startBtn = <HTMLDivElement>document.querySelector('.startBtn');
 
 // For game loop
@@ -18,7 +18,7 @@ let paused = false;
 let levelsStarted = -1;
 
 // Classes
-let platforms: Platforms, player: Player, hud: Hud, collisions: Collisions;
+let platforms: Platforms, player: Player, hud: Hud, collisions: Collisions, abilities: Abilities;
 
 const endGame = () => {
 	if (requestId) cancelAnimationFrame(requestId);
@@ -50,16 +50,9 @@ const gameLoop = () => {
 		player.draw();
 		hud.draw();
 
-		if (platforms.platsVisible?.[0]?.index === 0 && platforms.currentLevel > levelsStarted) {
-			levelsStarted = platforms.currentLevel;
-			setTimeout(() => {
-				titleDiv.children[0].innerHTML = `Level ${platforms.currentLevel + 1}`;
-				titleDiv.style.display = 'block';
-				setTimeout(() => {
-					titleDiv.style.display = 'none';
-				}, 3000);
-			}, 1000);
-		}
+		// if (platforms.platsVisible?.[0]?.index === 0 && platforms.currentLevel > levelsStarted) {
+		// 	levelsStarted = platforms.currentLevel;
+		// }
 
 		if (hud.lives === 0) endGame();
 	}
@@ -69,14 +62,16 @@ const startGame = () => {
 	gameLoop();
 };
 
-const prepGame = () => {
+const prepGame = async () => {
 	Object.freeze(gameObject);
 	hud = new Hud(ctx, world);
 	player = new Player(ctx, world, hud);
 	collisions = new Collisions(ctx, world, player, hud);
-	platforms = new Platforms(ctx, world, player, hud, collisions, gameObject);
-	platforms.setUp();
-	player.setUp();
+	abilities = new Abilities(ctx, world, hud);
+	platforms = new Platforms(ctx, world, player, hud, collisions, abilities, gameObject);
+
+	await platforms.setUp();
+	await player.setUp();
 
 	startGame();
 	startBtn.style.display = 'none';

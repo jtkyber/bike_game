@@ -6,12 +6,20 @@ export default class Hud {
 	private world: HTMLCanvasElement;
 	public lives: number;
 	private lastObjectHit: any;
+	public drawingLevelText: boolean;
+	private levelTextOpacity: number;
+	private levelTextOpacityInc: number;
+	public currentLevel: number;
 
 	constructor(ctx: Context, world: HTMLCanvasElement) {
 		this.ctx = ctx;
 		this.world = world;
 		this.lives = 3;
 		this.lastObjectHit = '';
+		this.drawingLevelText = false;
+		this.levelTextOpacity = 0;
+		this.levelTextOpacityInc = 0.02;
+		this.currentLevel = 0;
 	}
 
 	public drawJumpCharge(percentCharged: number, x: number, y: number) {
@@ -44,7 +52,7 @@ export default class Hud {
 		const scale = 0.06;
 
 		this.ctx.fillStyle = 'red';
-		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+		this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.6)';
 		this.ctx.lineWidth = 2;
 
 		this.ctx.beginPath();
@@ -106,7 +114,28 @@ export default class Hud {
 		}
 	}
 
+	private drawNextLevelText() {
+		this.ctx.font = '70px Arial';
+		this.ctx.fillStyle = `rgba(0, 0, 0, ${this.levelTextOpacity})`;
+		this.ctx.textAlign = 'center';
+		this.ctx.fillText(`Level ${this.currentLevel + 1}`, this.world.width / 2, this.world.height / 2);
+		this.levelTextOpacity += this.levelTextOpacityInc;
+	}
+
+	public beginLevelTextAnimation() {
+		this.drawingLevelText = true;
+		setTimeout(() => {
+			this.levelTextOpacityInc *= -1;
+			setTimeout(() => {
+				this.drawingLevelText = false;
+				this.levelTextOpacityInc *= -1;
+			}, 1500);
+		}, 1500);
+	}
+
 	public draw() {
 		this.drawLives();
+
+		if (this.drawingLevelText) this.drawNextLevelText();
 	}
 }

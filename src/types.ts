@@ -24,12 +24,19 @@ export interface IPlatObject {
 	xLocsOnPlatByPerc: number[];
 }
 
+export interface IPowerUp {
+	name: string;
+	xPercAlongPlat: number;
+	distAbovePlat: number;
+}
+
 export interface IPlatform {
 	y: number;
 	len: number;
 	gapToNext: number;
 	obsticles?: IPlatObject[];
 	decor?: IPlatObject[];
+	powerUps?: IPowerUp[];
 }
 
 export interface ILevel {
@@ -37,6 +44,7 @@ export interface ILevel {
 	platformTexture: string;
 	platformH: number | null;
 	backgroundImg: string;
+	bgImgYOffset: number;
 	maxPlatLen: number;
 	speed: number;
 }
@@ -48,4 +56,5 @@ export interface IGameObject {
 export interface IVisiblePlat {
 	index: number;
 	x: number;
+	level: number;
 }

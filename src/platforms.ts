@@ -1,7 +1,8 @@
+import Abilities from './abilities';
 import Collisions from './collisions';
 import Hud from './hud';
 import Player from './player';
-import { Context, IGameObject, ILevel, IPlatObject, IPlatform, IVisiblePlat } from './types';
+import { Context, IGameObject, ILevel, IPlatObject, IPlatform, IPowerUp, IVisiblePlat } from './types';
 
 export default class Platforms {
 	private ctx: Context;
@@ -9,14 +10,20 @@ export default class Platforms {
 	private player: Player;
 	private hud: Hud;
 	private collisions: Collisions;
+	private abilities: Abilities;
 	private gameObject: IGameObject;
 	public currentLevel: number;
 	public platsVisible: IVisiblePlat[];
 	private backgroundX: number;
+	private backgroundX2: number;
+	private bgImgYOffset: number;
+	private bgImgYOffset2: number;
 	public gameOver: boolean;
 	private collisionMargin: number;
-	private imagePaths: any[];
+	private imagePaths: string[];
 	private images: any;
+	private bgImg1: string;
+	private bgImg2: string;
 
 	constructor(
 		ctx: Context,
@@ -24,6 +31,7 @@ export default class Platforms {
 		player: Player,
 		hud: Hud,
 		collisions: Collisions,
+		abilities: Abilities,
 		gameObject: any
 	) {
 		this.ctx = ctx;
@@ -31,19 +39,25 @@ export default class Platforms {
 		this.player = player;
 		this.hud = hud;
 		this.collisions = collisions;
+		this.abilities = abilities;
 		this.gameObject = gameObject;
 		this.currentLevel = 0;
 		this.platsVisible = [
 			{
 				index: 0,
 				x: 0,
+				level: 0,
 			},
 		];
 		this.backgroundX = 0;
+		this.backgroundX2 = this.world.width;
+		this.bgImgYOffset = 0;
+		this.bgImgYOffset2 = 0;
 		this.gameOver = false;
 		this.collisionMargin = 30;
 		this.imagePaths = [
-			'../public/bgMountains.png',
+			'../public/bgLevel1.png',
+			'../public/bgLevel2.png',
 			// Platform Textures
 			'../public/woodPlat.png',
 			'../public/dirtPlat.png',
@@ -55,6 +69,8 @@ export default class Platforms {
 			'../public/rock3.png',
 		];
 		this.images = {};
+		this.bgImg1 = '';
+		this.bgImg2 = '';
 	}
 
 	public async setUp() {
@@ -78,34 +94,35 @@ export default class Platforms {
 		this.images = Object.fromEntries(imgArraytemp);
 	}
 
-	// private checkObsticleCollision(obsticle: IPlatObject, xVal: number, yVal: number) {
-	// 	if (
-
-	// 		this.player.x + this.player.w >= xVal + this.collisionMargin && // Check player right collision
-	// 		this.player.x <= xVal + this.images[obsticle.name].width && // Check player left collision
-	// 		this.player.y <= yVal + (this.images[obsticle.name].height || this.world.height - yVal) && // Check player top collision
-	// 		this.player.y + this.player.h > yVal // Check player bottom collision
-	// 	) {
-	// 		console.log('Collision with: ', obsticle.name);
-	// 		this.gameOver = true;
-	// 	}
-	// }
-
 	private nextPlatform() {
 		const lastVisiblePlat: IVisiblePlat = this.platsVisible[this.platsVisible.length - 1];
 		const platsRef: IPlatform[] = this.gameObject.levels[this.currentLevel].platforms;
 		const lastPlatRef: IPlatform = platsRef[lastVisiblePlat.index];
-		const nextPlat: IPlatform =
-			this.gameObject.levels[this.currentLevel].platforms[lastVisiblePlat.index + 1];
+		// const nextPlat: IPlatform = platsRef[lastVisiblePlat.index + 1];
 
-		if (!nextPlat) {
-			console.log('No More Platforms');
+		if (lastVisiblePlat.index === platsRef.length - 1) {
+			this.currentLevel += 1;
+
+			this.platsVisible.push({
+				index: 0,
+				x: lastVisiblePlat.x + lastPlatRef.len + lastPlatRef.gapToNext,
+				level: this.currentLevel,
+			});
+
+			if (this.platsVisible[0].x + platsRef[this.platsVisible[0].index].len < 0) this.platsVisible.shift();
+
 			return;
+		}
+
+		if (lastVisiblePlat.index === 0) {
+			this.hud.currentLevel = this.currentLevel;
+			this.hud.beginLevelTextAnimation();
 		}
 
 		this.platsVisible.push({
 			index: lastVisiblePlat.index + 1,
 			x: lastVisiblePlat.x + lastPlatRef.len + lastPlatRef.gapToNext,
+			level: this.currentLevel,
 		});
 
 		if (this.platsVisible[0].x + platsRef[this.platsVisible[0].index].len < 0) this.platsVisible.shift();
@@ -121,6 +138,7 @@ export default class Platforms {
 
 		for (let i = 0; i < this.platsVisible.length; i++) this.platsVisible[i].x -= level.speed;
 		this.backgroundX -= level.speed / 8;
+		if (this.bgImg2) this.backgroundX2 -= level.speed / 8;
 	}
 
 	private drawDecorForPlat(decor: IPlatObject[], platYTop: number, platX: number, platLen: number) {
@@ -128,7 +146,6 @@ export default class Platforms {
 			const imgSrc: HTMLImageElement = this.images[decor[i].name];
 			const decorXVals = decor[i].xLocsOnPlatByPerc;
 
-			// console.log(this.images[decor[i].name].height);
 			for (let i = 0; i < decorXVals?.length; i++) {
 				this.ctx.drawImage(
 					imgSrc,
@@ -179,28 +196,94 @@ export default class Platforms {
 		}
 	}
 
-	public draw() {
-		if (!this.images?.bgMountains) return;
-		// Draw BG
+	private drawPowerUps(
+		powerUps: IPowerUp[],
+		platYTop: number,
+		platX: number,
+		platLen: number,
+		platIndex: number
+	) {
+		for (let i = 0; i < powerUps?.length; i++) {
+			const imgSrc: HTMLImageElement = this.images[powerUps[i].name];
+			if (!imgSrc) continue;
+			const puX = powerUps[i].xPercAlongPlat;
+
+			this.ctx.drawImage(
+				imgSrc,
+				platX + platLen * puX,
+				platYTop - imgSrc.height + 10,
+				imgSrc.width,
+				imgSrc.height
+			);
+		}
+	}
+
+	private drawBgImage() {
+		if (!this.bgImg1.length) {
+			this.bgImgYOffset = this.gameObject.levels[this.currentLevel].bgImgYOffset;
+			this.bgImg1 = this.gameObject.levels[this.currentLevel].backgroundImg;
+		}
+
+		if (this.bgImg2.length && this.backgroundX2 <= 0) {
+			this.bgImg1 = this.gameObject.levels[this.currentLevel].backgroundImg;
+			this.bgImg2 = '';
+			this.backgroundX = this.backgroundX2;
+			this.backgroundX2 = this.world.width;
+			this.bgImgYOffset = this.bgImgYOffset2;
+			this.bgImgYOffset2 = 0;
+		}
+
+		const bgImage1 = this.images[this.bgImg1]; // Left Side Background
+
+		if (
+			(this.backgroundX + bgImage1.width < this.world.width ||
+				this.platsVisible[0].level !== this.currentLevel) &&
+			!this.bgImg2.length
+		) {
+			this.backgroundX2 = this.world.width;
+			this.bgImgYOffset2 = this.gameObject.levels[this.currentLevel].bgImgYOffset;
+			this.bgImg2 = this.gameObject.levels[this.currentLevel].backgroundImg;
+		}
+
+		const bgImage2 = this.images?.[this.bgImg2]; // Right Side Background
+
 		this.ctx.drawImage(
-			this.images.bgMountains,
+			bgImage1,
 			0,
 			0,
-			this.images.bgMountains.width,
-			this.images.bgMountains.height,
+			bgImage1.width,
+			bgImage1.height,
 			this.backgroundX,
-			this.world.height - this.images.bgMountains.height,
-			this.images.bgMountains.width,
-			this.images.bgMountains.height
+			this.world.height - bgImage1.height + this.bgImgYOffset,
+			bgImage1.width,
+			bgImage1.height
 		);
+
+		if (bgImage2) {
+			this.ctx.drawImage(
+				bgImage2,
+				0,
+				0,
+				bgImage2.width,
+				bgImage2.height,
+				this.backgroundX2,
+				this.world.height - bgImage2.height + this.bgImgYOffset2,
+				bgImage2.width,
+				bgImage2.height
+			);
+		}
+	}
+
+	public draw() {
+		this.drawBgImage();
 
 		let isFalling = true;
 		for (const plat of this.platsVisible) {
-			const level: ILevel = this.gameObject.levels[this.currentLevel];
+			const level: ILevel = this.gameObject.levels[plat.level];
 			const imgW =
 				this.images[level.platformTexture].width * (level.platforms[plat.index].len / level.maxPlatLen);
 
-			const platform: IPlatform = this.gameObject.levels[this.currentLevel].platforms[plat.index] || [];
+			const platform: IPlatform = this.gameObject.levels[plat.level].platforms[plat.index] || [];
 
 			if (platform?.decor) {
 				this.drawDecorForPlat(
@@ -212,6 +295,9 @@ export default class Platforms {
 			}
 			if (platform?.obsticles) {
 				this.drawObsticleOnPlat(platform.obsticles, platform.y, plat.x, platform.len, plat.index);
+			}
+			if (platform?.powerUps) {
+				this.abilities.draw(platform.powerUps, platform.y, plat.x, platform.len, plat.index);
 			}
 
 			this.ctx.drawImage(
