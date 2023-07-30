@@ -45,6 +45,14 @@ export default class Abilities {
 		this.images = Object.fromEntries(imgArraytemp);
 	}
 
+	private activatePowerUp(powerUp: string) {
+		switch (powerUp) {
+			case 'healthBoost':
+				this.hud.increaseHealth(20);
+				break;
+		}
+	}
+
 	public draw(powerUps: IPowerUp[], platYTop: number, platX: number, platLen: number, platIndex: number) {
 		for (let i = 0; i < powerUps?.length; i++) {
 			const imgSrc: HTMLImageElement = this.images[powerUps[i].name];
@@ -79,7 +87,7 @@ export default class Abilities {
 
 			if (collidedWithPowerUp) {
 				this.collectedPowerUps.push(object);
-				this.hud.increaseHealth(20);
+				this.activatePowerUp(powerUps[i].name);
 			}
 		}
 	}

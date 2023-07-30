@@ -35,7 +35,7 @@ const levelOne: ILevel = {
 			y: 650,
 			len: 1000,
 			gapToNext: 0,
-			powerUps: [{ name: 'healthBoost', xPercAlongPlat: 0.8, distAbovePlat: 300 }],
+			powerUps: [{ name: 'healthBoost', xPercAlongPlat: 0.1, distAbovePlat: 300 }],
 		},
 		{
 			y: 625,
@@ -48,7 +48,7 @@ const levelOne: ILevel = {
 	backgroundImg: 'bgLevel1',
 	bgImgYOffset: 0,
 	maxPlatLen: 4000,
-	speed: 20,
+	speed: 14,
 };
 
 const levelTwo: ILevel = {
@@ -57,7 +57,6 @@ const levelTwo: ILevel = {
 			y: 600,
 			len: 3000,
 			gapToNext: 0,
-			decor: [{ name: 'startSign', xLocsOnPlatByPerc: [0.6] }],
 		},
 		{
 			y: 600,
@@ -93,7 +92,7 @@ const levelTwo: ILevel = {
 	backgroundImg: 'bgLevel2',
 	bgImgYOffset: 600,
 	maxPlatLen: 4000,
-	speed: 20,
+	speed: 16,
 };
 
 const gameObject: IGameObject = {

@@ -74,6 +74,7 @@ body {
             background-color: rgba($color: #0094b6, $alpha: 1.0);
             font-weight: 600;
             font-size: large;
+            display: none;
 
             &:hover{
                 opacity: 0.6;

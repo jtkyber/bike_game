@@ -23,7 +23,7 @@ export default class Collisions {
 
 		if (playerRightOfPlatLeft && playerLeftOfPlatRight && playerAbovePlatBot) {
 			// Land if negative velocity and within 20px of platform
-			if (this.player.yVelocity <= 0 && Math.abs(y2 - (y1 + h1)) < 20) {
+			if (this.player.yVelocity <= 0 && Math.abs(y2 - (y1 + h1)) < 16) {
 				this.player.land(y2);
 				return true;
 			} else if (playerBelowPlatTop) {

@@ -61,79 +61,6 @@ export default class Hud {
 		else this.health += amt;
 	}
 
-	// private drawHeart(sectionW: number, heartIndex: number, sectionStartX: number) {
-	// 	const xShiftInsideBox = 8;
-	// 	const heartContainerW = 50;
-	// 	const xoff =
-	// 		(heartIndex === 0 ? 0 : heartIndex === 1 ? heartContainerW : heartContainerW * 2) +
-	// 		sectionStartX +
-	// 		xShiftInsideBox;
-	// 	const yoff = 14;
-	// 	const scale = 0.06;
-
-	// 	this.ctx.fillStyle = 'red';
-	// 	this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.6)';
-	// 	this.ctx.lineWidth = 2;
-
-	// 	this.ctx.beginPath();
-	// 	this.ctx.moveTo(scale * 372 + xoff, scale * 240 + yoff);
-	// 	this.ctx.bezierCurveTo(
-	// 		scale * 487 + xoff,
-	// 		scale * 117 + yoff,
-	// 		scale * 642 + xoff,
-	// 		scale * 262 + yoff,
-	// 		scale * 551 + xoff,
-	// 		scale * 363 + yoff
-	// 	);
-	// 	this.ctx.bezierCurveTo(
-	// 		scale * 541 + xoff,
-	// 		scale * 374 + yoff,
-	// 		scale * 398 + xoff,
-	// 		scale * 550 + yoff,
-	// 		scale * 385 + xoff,
-	// 		scale * 594 + yoff
-	// 	);
-	// 	this.ctx.bezierCurveTo(
-	// 		scale * 371 + xoff,
-	// 		scale * 550 + yoff,
-	// 		scale * 233 + xoff,
-	// 		scale * 379 + yoff,
-	// 		scale * 222 + xoff,
-	// 		scale * 367 + yoff
-	// 	);
-	// 	this.ctx.bezierCurveTo(
-	// 		scale * 121 + xoff,
-	// 		scale * 257 + yoff,
-	// 		scale * 294 + xoff,
-	// 		scale * 125 + yoff,
-	// 		scale * 385 + xoff,
-	// 		scale * 246 + yoff
-	// 	);
-
-	// 	this.ctx.save();
-	// 	this.ctx.clip();
-	// 	this.ctx.lineWidth *= 2;
-	// 	this.ctx.stroke();
-	// 	this.ctx.restore();
-
-	// 	if (heartIndex + 1 <= this.lives) this.ctx.fill();
-	// }
-
-	// private drawLives() {
-	// 	const sectionStartX = 30;
-	// 	const sectionStartY = 11;
-	// 	const sectionW = 160;
-	// 	const sectionH = 50;
-	// 	this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-	// 	this.ctx.beginPath();
-	// 	this.ctx.roundRect(sectionStartX, sectionStartY, sectionW, sectionH, 10);
-	// 	this.ctx.fill();
-
-	// 	for (let i = 0; i < 3; i++) {
-	// 		this.drawHeart(sectionW, i, sectionStartX);
-	// 	}
-	// }
-
 	private drawHealth() {
 		const sectionStartX = 30;
 		const sectionStartY = 11;
@@ -167,10 +94,25 @@ export default class Hud {
 	}
 
 	private drawNextLevelText() {
-		this.ctx.font = '70px Arial';
-		this.ctx.fillStyle = `rgba(0, 0, 0, ${this.levelTextOpacity})`;
+		const w = 250;
+		const h = 70;
+		const yOffset = -200;
+
+		this.ctx.fillStyle = `rgba(0, 0, 0, ${this.levelTextOpacity >= 0.7 ? 0.7 : this.levelTextOpacity})`;
+		this.ctx.beginPath();
+		this.ctx.roundRect(this.world.width / 2 - w / 2, this.world.height / 2 - h / 2 + yOffset, w, h, 10);
+		this.ctx.fill();
+
+		this.ctx.font = '40px Arial';
+		this.ctx.fillStyle = `rgba(255, 255, 255, ${this.levelTextOpacity})`;
 		this.ctx.textAlign = 'center';
-		this.ctx.fillText(`Level ${this.currentLevel + 1}`, this.world.width / 2, this.world.height / 2);
+		this.ctx.textBaseline = 'middle';
+		this.ctx.fillText(
+			`Level ${this.currentLevel + 1}`,
+			this.world.width / 2,
+			this.world.height / 2 + yOffset
+		);
+
 		this.levelTextOpacity += this.levelTextOpacityInc;
 	}
 

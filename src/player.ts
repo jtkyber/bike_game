@@ -34,7 +34,7 @@ export default class Player {
 		this.aspectRatio = 1.1;
 		this.x = 100;
 		this.y = 100;
-		this.w = 170;
+		this.w = 150;
 		this.h = this.w / this.aspectRatio;
 		this.isInAir = true;
 		this.maxJumpStart = 20;
@@ -80,6 +80,8 @@ export default class Player {
 
 		const imgArraytemp: any[] = await preloadImages();
 		this.images = Object.fromEntries(imgArraytemp);
+		this.w = this.images.frame.width;
+		this.h = this.images.frame.height;
 	}
 
 	public changeToDamagedImgs(object: string) {
@@ -156,7 +158,7 @@ export default class Player {
 	}
 
 	private drawWheels() {
-		const rotOffset = this.hud.health >= 90 ? 0 : this.hud.health < 90 && this.hud.health >= 50 ? 2 : 4;
+		const rotOffset = this.hud.health >= 90 ? 0 : this.hud.health < 90 && this.hud.health >= 50 ? 1 : 2;
 
 		this.ctx.save();
 		this.ctx.translate(this.rotCoordsForJump.x + rotOffset, this.rotCoordsForJump.y);
@@ -166,8 +168,8 @@ export default class Player {
 			this.isBeingDamaged ? this.images.wheelDamaged : this.images.wheel,
 			-this.images.wheel.width / 2 - rotOffset,
 			-this.images.wheel.height / 2,
-			this.images.wheel.width,
-			this.images.wheel.height
+			this.images.wheel.width - 0.5,
+			this.images.wheel.height - 0.5
 		);
 		this.ctx.restore();
 
@@ -184,8 +186,8 @@ export default class Player {
 			this.isBeingDamaged ? this.images.wheelDamaged : this.images.wheel,
 			-(this.rotCoordsForJump.x - this.x) + this.w - this.images.wheel.width,
 			-this.images.wheel.height / 2 - rotOffset,
-			this.images.wheel.width,
-			this.images.wheel.height
+			this.images.wheel.width - 0.5,
+			this.images.wheel.height - 0.5
 		);
 		this.ctx.restore();
 	}
@@ -193,6 +195,7 @@ export default class Player {
 	public draw() {
 		if (!this.images?.frame) return;
 		this.wheelRot += this.speed;
+		// this.wheelRot += 10;
 
 		if (this.loadingJump) this.loadJump();
 

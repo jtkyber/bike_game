@@ -54,7 +54,7 @@ export default class Platforms {
 		this.bgImgYOffset = 0;
 		this.bgImgYOffset2 = 0;
 		this.gameOver = false;
-		this.collisionMargin = 30;
+		this.collisionMargin = 26;
 		this.imagePaths = [
 			'../public/bgLevel1.png',
 			'../public/bgLevel2.png',
@@ -296,7 +296,7 @@ export default class Platforms {
 					0,
 					this.images[level.platformTexture].height,
 					imgW,
-					-3 *
+					-2.5 *
 						this.images[level.platformTexture].height *
 						((this.world.height - level.platforms[plat.index].y) / this.images[level.platformTexture].height),
 					plat.x,
@@ -304,6 +304,15 @@ export default class Platforms {
 					level.platforms[plat.index].len,
 					this.world.height - level.platforms[plat.index].y
 				);
+
+				// this.ctx.strokeStyle = 'black';
+				// this.ctx.rect(
+				// 	plat.x,
+				// 	level.platforms[plat.index].y,
+				// 	level.platforms[plat.index].len,
+				// 	this.world.height - level.platforms[plat.index].y
+				// );
+				// this.ctx.stroke();
 			}
 
 			const isColliding = this.collisions.checkForPlatCollision({

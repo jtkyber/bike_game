@@ -24,10 +24,10 @@ let platforms: Platforms, player: Player, hud: Hud, collisions: Collisions, abil
 const endGame = () => {
 	if (requestId) cancelAnimationFrame(requestId);
 	requestId = null;
-	// prepGame();
-	// startBtn.style.display = 'block';
-	// startBtn.innerHTML = 'Play Again';
-	// levelsStarted = -1;
+	prepGame();
+	startBtn.style.display = 'block';
+	startBtn.innerHTML = 'Play Again';
+	levelsStarted = -1;
 };
 
 const gameLoop = () => {
@@ -82,8 +82,8 @@ const prepGame = async () => {
 	await player.setUp();
 	await abilities.setUp();
 
-	startGame();
-	startBtn.style.display = 'none';
+	// startGame();
+	startBtn.style.display = 'block';
 };
 
 prepGame();
