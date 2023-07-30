@@ -300,17 +300,33 @@ export default class Platforms {
 				this.abilities.draw(platform.powerUps, platform.y, plat.x, platform.len, plat.index);
 			}
 
-			this.ctx.drawImage(
-				this.images[level.platformTexture],
-				0,
-				0,
-				imgW,
-				this.images[level.platformTexture].height,
-				plat.x,
-				level.platforms[plat.index].y,
-				level.platforms[plat.index].len,
-				level.platformH || this.world.height - level.platforms[plat.index].y
-			);
+			if (level.platformH) {
+				this.ctx.drawImage(
+					this.images[level.platformTexture],
+					0,
+					0,
+					imgW,
+					this.images[level.platformTexture].height,
+					plat.x,
+					level.platforms[plat.index].y,
+					level.platforms[plat.index].len,
+					level.platformH
+				);
+			} else {
+				this.ctx.drawImage(
+					this.images[level.platformTexture],
+					0,
+					this.images[level.platformTexture].height,
+					imgW,
+					-3 *
+						this.images[level.platformTexture].height *
+						((this.world.height - level.platforms[plat.index].y) / this.images[level.platformTexture].height),
+					plat.x,
+					level.platforms[plat.index].y,
+					level.platforms[plat.index].len,
+					this.world.height - level.platforms[plat.index].y
+				);
+			}
 
 			const isColliding = this.collisions.checkForPlatCollision({
 				x1: this.player.x,

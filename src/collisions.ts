@@ -47,7 +47,6 @@ export default class Collisions {
 			y1 <= y2 + h2 && // Check player top collision
 			y1 + h1 > y2 // Check player bottom collision
 		) {
-			console.log('checkForCollision');
 			this.hud.reduceHealth(object);
 			this.player.changeToDamagedImgs(object);
 		}

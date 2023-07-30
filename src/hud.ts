@@ -10,6 +10,8 @@ export default class Hud {
 	private levelTextOpacity: number;
 	private levelTextOpacityInc: number;
 	public currentLevel: number;
+	public fps: number;
+	public fpsEnabled: boolean;
 
 	constructor(ctx: Context, world: HTMLCanvasElement) {
 		this.ctx = ctx;
@@ -20,6 +22,17 @@ export default class Hud {
 		this.levelTextOpacity = 0;
 		this.levelTextOpacityInc = 0.02;
 		this.currentLevel = 0;
+		this.fps = 0;
+		this.fpsEnabled = true;
+	}
+
+	private drawFps() {
+		if (!this.fpsEnabled) return;
+
+		this.ctx.font = '20px Arial';
+		this.ctx.fillStyle = 'rgba(0, 255, 0, 1)';
+		this.ctx.textAlign = 'right';
+		this.ctx.fillText(`${this.fps} FPS`, this.world.width - 20, 30);
 	}
 
 	public drawJumpCharge(percentCharged: number, x: number, y: number) {
@@ -135,6 +148,7 @@ export default class Hud {
 
 	public draw() {
 		this.drawLives();
+		this.drawFps();
 
 		if (this.drawingLevelText) this.drawNextLevelText();
 	}

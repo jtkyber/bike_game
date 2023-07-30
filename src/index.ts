@@ -14,6 +14,7 @@ const startBtn = <HTMLDivElement>document.querySelector('.startBtn');
 let requestId: number | null, now: number, then: number, elapsed: number, fpsInterval: number;
 
 let frameRate = 60;
+let frames = 0;
 let paused = false;
 let levelsStarted = -1;
 
@@ -37,6 +38,12 @@ const gameLoop = () => {
 	elapsed = now - (then || 0);
 
 	if (elapsed > fpsInterval) {
+		if (frames === 0)
+			setTimeout(() => {
+				hud.fps = frames;
+				frames = 0;
+			}, 1000);
+		frames += 1;
 		then = now - (elapsed % fpsInterval);
 
 		ctx.clearRect(0, 0, world.width, world.height);
@@ -64,6 +71,7 @@ const startGame = () => {
 
 const prepGame = async () => {
 	Object.freeze(gameObject);
+
 	hud = new Hud(ctx, world);
 	player = new Player(ctx, world, hud);
 	collisions = new Collisions(ctx, world, player, hud);
