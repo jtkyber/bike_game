@@ -24,6 +24,7 @@ export default class Platforms {
 	private images: any;
 	private bgImg1: string;
 	private bgImg2: string;
+	public gameCompleted: boolean;
 
 	constructor(
 		ctx: Context,
@@ -71,6 +72,7 @@ export default class Platforms {
 		this.images = {};
 		this.bgImg1 = '';
 		this.bgImg2 = '';
+		this.gameCompleted = false;
 	}
 
 	public async setUp() {
@@ -101,6 +103,10 @@ export default class Platforms {
 		// const nextPlat: IPlatform = platsRef[lastVisiblePlat.index + 1];
 
 		if (lastVisiblePlat.index === platsRef.length - 1) {
+			if (!this.gameObject.levels[this.currentLevel + 1]) {
+				this.gameCompleted = true;
+				return;
+			}
 			this.currentLevel += 1;
 
 			this.platsVisible.push({
@@ -129,6 +135,8 @@ export default class Platforms {
 	}
 
 	public move() {
+		if (this.gameCompleted) return;
+
 		const level: ILevel = this.gameObject.levels[this.currentLevel];
 		const platRef: IPlatform = level.platforms[this.platsVisible[this.platsVisible.length - 1].index];
 
@@ -197,6 +205,7 @@ export default class Platforms {
 	}
 
 	private drawBgImage() {
+		// If no bg image 1, assign to it and assign it's y offset
 		if (!this.bgImg1.length) {
 			this.bgImgYOffset = this.gameObject.levels[this.currentLevel].bgImgYOffset;
 			this.bgImg1 = this.gameObject.levels[this.currentLevel].backgroundImg;
@@ -225,29 +234,53 @@ export default class Platforms {
 
 		const bgImage2 = this.images?.[this.bgImg2]; // Right Side Background
 
+		// this.ctx.drawImage(
+		// 	bgImage1,
+		// 	0,
+		// 	bgImage1.height - bgImage1.height * this.bgImgScaler,
+		// 	bgImage1.width * this.bgImgScaler,
+		// 	bgImage1.height * this.bgImgScaler,
+		// 	this.backgroundX,
+		// 	this.world.height + this.bgImgYOffset,
+		// 	bgImage1.width,
+		// 	-bgImage1.height
+		// );
+		// console.log(this.world.width / bgImage1.width);
+
 		this.ctx.drawImage(
 			bgImage1,
-			0,
-			0,
-			bgImage1.width,
+			-this.backgroundX,
 			bgImage1.height,
-			this.backgroundX,
-			this.world.height - bgImage1.height + this.bgImgYOffset,
-			bgImage1.width,
-			bgImage1.height
+			bgImage1.width * (this.world.width / bgImage1.width),
+			-bgImage1.height * (this.world.height / bgImage1.height),
+			0,
+			0,
+			this.world.width,
+			this.world.height
 		);
 
 		if (bgImage2) {
+			// this.ctx.drawImage(
+			// 	bgImage2,
+			// 	0,
+			// 	bgImage2.height - bgImage2.height * this.bgImgScaler2,
+			// 	bgImage2.width * this.bgImgScaler2,
+			// 	bgImage2.height * this.bgImgScaler2,
+			// 	this.backgroundX2,
+			// 	this.world.height + this.bgImgYOffset2,
+			// 	bgImage2.width,
+			// 	-bgImage2.height
+			// );
 			this.ctx.drawImage(
 				bgImage2,
-				0,
-				0,
-				bgImage2.width,
+				-this.backgroundX2,
 				bgImage2.height,
-				this.backgroundX2,
-				this.world.height - bgImage2.height + this.bgImgYOffset2,
-				bgImage2.width,
-				bgImage2.height
+				bgImage2.width * (this.world.width / bgImage2.width),
+				-bgImage2.height * (this.world.height / bgImage2.height),
+				0,
+				0,
+				this.world.width,
+				this.world.height
 			);
 		}
 	}
@@ -256,26 +289,40 @@ export default class Platforms {
 		this.drawBgImage();
 
 		let isFalling = true;
-		for (const plat of this.platsVisible) {
-			const level: ILevel = this.gameObject.levels[plat.level];
+		for (let i = 0; i < this.platsVisible.length; i++) {
+			const level: ILevel = this.gameObject.levels[this.platsVisible[i].level];
 			const imgW =
-				this.images[level.platformTexture].width * (level.platforms[plat.index].len / level.maxPlatLen);
+				this.images[level.platformTexture].width *
+				(level.platforms[this.platsVisible[i].index].len / level.maxPlatLen);
 
-			const platform: IPlatform = this.gameObject.levels[plat.level].platforms[plat.index] || [];
+			const platform: IPlatform =
+				this.gameObject.levels[this.platsVisible[i].level].platforms[this.platsVisible[i].index] || [];
 
 			if (platform?.decor) {
 				this.drawDecorForPlat(
 					platform.decor,
-					level.platforms[plat.index].y,
-					plat.x,
-					level.platforms[plat.index].len
+					level.platforms[this.platsVisible[i].index].y,
+					this.platsVisible[i].x,
+					level.platforms[this.platsVisible[i].index].len
 				);
 			}
 			if (platform?.obsticles) {
-				this.drawObsticleOnPlat(platform.obsticles, platform.y, plat.x, platform.len, plat.index);
+				this.drawObsticleOnPlat(
+					platform.obsticles,
+					platform.y,
+					this.platsVisible[i].x,
+					platform.len,
+					this.platsVisible[i].index
+				);
 			}
 			if (platform?.powerUps) {
-				this.abilities.draw(platform.powerUps, platform.y, plat.x, platform.len, plat.index);
+				this.abilities.draw(
+					platform.powerUps,
+					platform.y,
+					this.platsVisible[i].x,
+					platform.len,
+					this.platsVisible[i].index
+				);
 			}
 
 			if (level.platformH) {
@@ -285,9 +332,9 @@ export default class Platforms {
 					0,
 					imgW,
 					this.images[level.platformTexture].height,
-					plat.x,
-					level.platforms[plat.index].y,
-					level.platforms[plat.index].len,
+					this.platsVisible[i].x,
+					level.platforms[this.platsVisible[i].index].y,
+					level.platforms[this.platsVisible[i].index].len,
 					level.platformH
 				);
 			} else {
@@ -298,11 +345,12 @@ export default class Platforms {
 					imgW,
 					-2.5 *
 						this.images[level.platformTexture].height *
-						((this.world.height - level.platforms[plat.index].y) / this.images[level.platformTexture].height),
-					plat.x,
-					level.platforms[plat.index].y,
-					level.platforms[plat.index].len,
-					this.world.height - level.platforms[plat.index].y
+						((this.world.height - level.platforms[this.platsVisible[i].index].y) /
+							this.images[level.platformTexture].height),
+					this.platsVisible[i].x,
+					level.platforms[this.platsVisible[i].index].y,
+					level.platforms[this.platsVisible[i].index].len,
+					this.world.height - level.platforms[this.platsVisible[i].index].y
 				);
 
 				// this.ctx.strokeStyle = 'black';
@@ -318,14 +366,14 @@ export default class Platforms {
 			const isColliding = this.collisions.checkForPlatCollision({
 				x1: this.player.x,
 				y1: this.player.y,
-				x2: plat.x,
-				y2: level.platforms[plat.index].y,
+				x2: this.platsVisible[i].x,
+				y2: level.platforms[this.platsVisible[i].index].y,
 				w1: this.player.w,
 				h1: this.player.h,
-				w2: level.platforms[plat.index].len,
-				h2: level.platformH || this.world.height - level.platforms[plat.index].y,
+				w2: level.platforms[this.platsVisible[i].index].len,
+				h2: level.platformH || this.world.height - level.platforms[this.platsVisible[i].index].y,
 				margin: this.collisionMargin,
-				object: `${this.currentLevel}_${plat.index}`,
+				object: `${this.currentLevel}_${this.platsVisible[i].index}`,
 			});
 
 			if (isColliding) isFalling = false;

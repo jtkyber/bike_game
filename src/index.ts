@@ -41,6 +41,7 @@ const gameLoop = () => {
 		if (frames === 0)
 			setTimeout(() => {
 				hud.fps = frames;
+				// console.log(frames);
 				frames = 0;
 			}, 1000);
 		frames += 1;
@@ -63,7 +64,7 @@ const gameLoop = () => {
 		// 	levelsStarted = platforms.currentLevel;
 		// }
 
-		if (hud.health === 0) endGame();
+		if (hud.health === 0 || platforms.gameCompleted) endGame();
 	}
 };
 
@@ -74,7 +75,7 @@ const startGame = () => {
 const prepGame = async () => {
 	Object.freeze(gameObject);
 
-	hud = new Hud(ctx, world, abilities, frameRate);
+	hud = new Hud(ctx, world, frameRate);
 	player = new Player(ctx, world, hud);
 	collisions = new Collisions(ctx, world, player, hud);
 	abilities = new Abilities(ctx, world, hud, collisions, player);

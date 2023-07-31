@@ -1,5 +1,3 @@
-import throttle from '../utils/throttle';
-import Abilities from './abilities';
 import { Context } from './types';
 
 export default class Hud {
@@ -23,7 +21,7 @@ export default class Hud {
 	public usingPowerUp: boolean;
 	public powerUpPercentUsed: number;
 
-	constructor(ctx: Context, world: HTMLCanvasElement, abilities: Abilities, framerate: number) {
+	constructor(ctx: Context, world: HTMLCanvasElement, framerate: number) {
 		this.ctx = ctx;
 		this.world = world;
 		this.health = 100;
@@ -79,8 +77,6 @@ export default class Hud {
 
 		// Inner circle
 		this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-		this.ctx.strokeStyle = 'black';
-		this.ctx.lineWidth = 2;
 		this.ctx.beginPath();
 		this.ctx.ellipse(
 			this.world.width - rInner + xOffset,
@@ -92,11 +88,25 @@ export default class Hud {
 			2 * Math.PI
 		);
 		this.ctx.fill();
+
+		// Middle circle Static
+		this.ctx.strokeStyle = 'rgba(40, 40, 40, 1)';
+		this.ctx.lineWidth = circleSeparation + 2;
+		this.ctx.beginPath();
+		this.ctx.ellipse(
+			this.world.width - rOuter + xOffset + circleSeparation,
+			rOuter + yOffset - circleSeparation,
+			rOuter - circleSeparation / 2 + 1,
+			rOuter - circleSeparation / 2 + 1,
+			2 * Math.PI,
+			-Math.PI / 2,
+			(3 * Math.PI) / 2
+		);
 		this.ctx.stroke();
 
-		// Middle circle
-		this.ctx.strokeStyle = 'green';
-		this.ctx.lineWidth = circleSeparation - 2;
+		// Middle circle Dynamic
+		this.ctx.strokeStyle = 'rgba(7, 191, 4, 1)';
+		this.ctx.lineWidth = circleSeparation;
 		this.ctx.beginPath();
 		this.ctx.ellipse(
 			this.world.width - rOuter + xOffset + circleSeparation,
@@ -106,21 +116,6 @@ export default class Hud {
 			2 * Math.PI,
 			-Math.PI / 2 + 2 * Math.PI * this.powerUpPercentUsed,
 			(3 * Math.PI) / 2
-		);
-		this.ctx.stroke();
-
-		// Outer circle
-		this.ctx.strokeStyle = 'black';
-		this.ctx.lineWidth = 2;
-		this.ctx.beginPath();
-		this.ctx.ellipse(
-			this.world.width - rOuter + xOffset + circleSeparation,
-			rOuter + yOffset - circleSeparation,
-			rOuter,
-			rOuter,
-			2 * Math.PI,
-			0,
-			2 * Math.PI
 		);
 		this.ctx.stroke();
 
@@ -151,12 +146,16 @@ export default class Hud {
 		const h = 60;
 		const xOffset = 0;
 		const yOffset = -20;
-		this.ctx.strokeStyle = 'rgb(0, 0, 0)';
+		this.ctx.strokeStyle = 'rgb(40, 40, 40)';
+		this.ctx.lineWidth = 2;
 		this.ctx.fillStyle = 'rgb(7, 191, 4)';
 		this.ctx.beginPath();
-		this.ctx.rect(x + xOffset - 1, y + yOffset - 1, w + 2, h + 2);
+		this.ctx.roundRect(x + xOffset - 1, y + yOffset - 1, w + 2, h + 2, 8);
 		this.ctx.stroke();
-		this.ctx.fillRect(x + xOffset, y + yOffset + h, w, -h * percentCharged);
+
+		this.ctx.beginPath();
+		this.ctx.roundRect(x + xOffset, y + yOffset + h, w, -h * percentCharged, 8);
+		this.ctx.fill();
 	}
 
 	public reduceHealth(object: string, amt: number) {
@@ -178,30 +177,20 @@ export default class Hud {
 		const sectionW = 160;
 		const sectionH = 12;
 
-		this.ctx.shadowOffsetX = 3;
-		this.ctx.shadowOffsetY = 3;
-		this.ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-		this.ctx.shadowBlur = 4;
-
-		this.ctx.lineWidth = 2;
-		this.ctx.strokeStyle = 'rgba(0, 0, 0, 1)';
+		this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
 		this.ctx.beginPath();
-		this.ctx.roundRect(sectionStartX - 1, sectionStartY - 1, sectionW + 2, sectionH + 2, 10);
-		this.ctx.stroke();
+		this.ctx.roundRect(sectionStartX - 2, sectionStartY - 2, sectionW + 4, sectionH + 4, 10);
+		this.ctx.fill();
 
 		this.ctx.fillStyle =
 			this.health >= 90
-				? 'rgba(0, 170, 0, 1)'
+				? 'rgba(7, 191, 4, 1)'
 				: this.health >= 50 && this.health < 90
-				? 'rgba(170, 170, 0, 1)'
-				: 'rgba(255, 0, 0, 1)';
+				? 'rgba(200, 200, 0, 1)'
+				: 'rgba(230, 0, 0, 1)';
 		this.ctx.beginPath();
 		this.ctx.roundRect(sectionStartX, sectionStartY, sectionW * (this.health / 100), sectionH, 10);
 		this.ctx.fill();
-
-		this.ctx.shadowOffsetX = 0;
-		this.ctx.shadowOffsetY = 0;
-		this.ctx.shadowBlur = 0;
 	}
 
 	private drawNextLevelText() {
