@@ -57,6 +57,8 @@ const gameLoop = () => {
 		player.draw();
 		hud.draw();
 
+		if (hud.currentPowerUp.name && hud.powerUpPercentUsed >= 1) abilities.finishPowerUp();
+
 		// if (platforms.platsVisible?.[0]?.index === 0 && platforms.currentLevel > levelsStarted) {
 		// 	levelsStarted = platforms.currentLevel;
 		// }
@@ -72,7 +74,7 @@ const startGame = () => {
 const prepGame = async () => {
 	Object.freeze(gameObject);
 
-	hud = new Hud(ctx, world);
+	hud = new Hud(ctx, world, abilities, frameRate);
 	player = new Player(ctx, world, hud);
 	collisions = new Collisions(ctx, world, player, hud);
 	abilities = new Abilities(ctx, world, hud, collisions, player);
@@ -81,9 +83,11 @@ const prepGame = async () => {
 	await platforms.setUp();
 	await player.setUp();
 	await abilities.setUp();
+	await hud.setUp();
 
 	// startGame();
 	startBtn.style.display = 'block';
+	// startBtn.style.display = 'none';
 };
 
 prepGame();
@@ -112,6 +116,9 @@ document.addEventListener('keyup', e => {
 			}
 		case 'Space':
 			player.jump();
+			break;
+		case 'KeyE':
+			abilities.usePowerUp();
 			break;
 	}
 });

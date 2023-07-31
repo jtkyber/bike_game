@@ -4,14 +4,18 @@ import Player from './player';
 import { Context, IPowerUp } from './types';
 
 export default class Abilities {
-	ctx: Context;
-	world: HTMLCanvasElement;
-	hud: Hud;
-	collisions: Collisions;
-	player: Player;
-	imagePaths: string[];
-	images: any;
-	collectedPowerUps: string[];
+	private ctx: Context;
+	private world: HTMLCanvasElement;
+	private hud: Hud;
+	private collisions: Collisions;
+	private player: Player;
+	private imagePaths: string[];
+	private images: any;
+	private collectedPowerUps: string[];
+	public currentPowerUp: {
+		name: string;
+		durationInSecs: number;
+	};
 
 	constructor(ctx: Context, world: HTMLCanvasElement, hud: Hud, collisions: Collisions, player: Player) {
 		this.ctx = ctx;
@@ -19,9 +23,13 @@ export default class Abilities {
 		this.hud = hud;
 		this.collisions = collisions;
 		this.player = player;
-		this.imagePaths = ['../public/healthBoost.png'];
+		this.imagePaths = ['../public/healthBoost.png', '../public/invincibility.png'];
 		this.images = {};
 		this.collectedPowerUps = [];
+		this.currentPowerUp = {
+			name: '',
+			durationInSecs: 0,
+		};
 	}
 
 	public async setUp() {
@@ -45,10 +53,47 @@ export default class Abilities {
 		this.images = Object.fromEntries(imgArraytemp);
 	}
 
-	private activatePowerUp(powerUp: string) {
+	public finishPowerUp() {
+		switch (this.currentPowerUp.name) {
+			case 'invincibility':
+				this.collisions.ignoreObjectCollision = false;
+				break;
+			default:
+				break;
+		}
+
+		this.currentPowerUp = {
+			name: '',
+			durationInSecs: 0,
+		};
+		this.hud.currentPowerUp = this.currentPowerUp;
+		this.hud.powerUpPercentUsed = 0;
+		this.hud.usingPowerUp = false;
+	}
+
+	public usePowerUp() {
+		switch (this.currentPowerUp.name) {
+			case 'invincibility':
+				this.collisions.ignoreObjectCollision = true;
+				this.hud.usingPowerUp = true;
+				break;
+			default:
+				break;
+		}
+	}
+
+	private grabPowerUp(powerUp: string) {
 		switch (powerUp) {
 			case 'healthBoost':
 				this.hud.increaseHealth(20);
+				break;
+			case 'invincibility':
+				if (this.currentPowerUp.name) return;
+				this.currentPowerUp = {
+					name: powerUp,
+					durationInSecs: 5,
+				};
+				this.hud.currentPowerUp = this.currentPowerUp;
 				break;
 		}
 	}
@@ -87,7 +132,7 @@ export default class Abilities {
 
 			if (collidedWithPowerUp) {
 				this.collectedPowerUps.push(object);
-				this.activatePowerUp(powerUps[i].name);
+				this.grabPowerUp(powerUps[i].name);
 			}
 		}
 	}

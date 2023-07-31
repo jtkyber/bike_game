@@ -7,12 +7,14 @@ export default class Collisions {
 	private world: HTMLCanvasElement;
 	private player: Player;
 	private hud: Hud;
+	public ignoreObjectCollision: boolean;
 
 	constructor(ctx: Context, world: HTMLCanvasElement, player: Player, hud: Hud) {
 		this.ctx = ctx;
 		this.world = world;
 		this.player = player;
 		this.hud = hud;
+		this.ignoreObjectCollision = false;
 	}
 
 	public checkForPlatCollision({ x1, y1, x2, y2, w1, h1, w2, h2, margin, object }: ICollisionArgs): boolean {
@@ -41,6 +43,7 @@ export default class Collisions {
 	}
 
 	public checkForCollision({ x1, y1, x2, y2, w1, h1, w2, h2, margin, object }: ICollisionArgs) {
+		if (this.ignoreObjectCollision) return;
 		if (
 			x1 + w1 >= x2 + margin && // Check player right collision
 			x1 <= x2 + w2 && // Check player left collision

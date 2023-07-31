@@ -12,7 +12,7 @@ const prod = {
 };
 
 module.exports = {
-	...prod,
+	...dev,
 	entry: glob.sync('./src/**/*.ts'),
 	module: {
 		rules: [
