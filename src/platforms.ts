@@ -320,8 +320,7 @@ export default class Platforms {
 
 			const isCurrentPlat =
 				this.player.x > this.platsVisible[i].x &&
-				this.player.x + this.player.w <=
-					this.platsVisible[i].x + level.platforms[this.platsVisible[i].index].len;
+				this.player.x <= this.platsVisible[i].x + level.platforms[this.platsVisible[i].index].len;
 
 			if (!passedCurrentPlat && (isCurrentPlat || i === this.platsVisible.length - 1)) {
 				this.player.draw();
