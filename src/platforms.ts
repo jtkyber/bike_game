@@ -156,12 +156,11 @@ export default class Platforms {
 			const imgSrc: HTMLImageElement = this.images[decor[i].name];
 			const decorXVals = decor[i].xLocsOnPlatByPerc;
 
-			// if (decor[i].name === 'treeBack') console.log(this.images[decor[i].name].width);
 			for (let j = 0; j < decorXVals?.length; j++) {
 				this.ctx.drawImage(
 					imgSrc,
 					platX + platLen * decorXVals[j],
-					platYTop + 10,
+					platYTop + 4,
 					this.images[decor[i].name].width,
 					-this.images[decor[i].name].height
 				);
@@ -295,6 +294,7 @@ export default class Platforms {
 		this.drawBgImage();
 
 		let isFalling = true;
+		let passedCurrentPlat = false;
 		for (let i = 0; i < this.platsVisible.length; i++) {
 			const level: ILevel = this.gameObject.levels[this.platsVisible[i].level];
 			const imgW =
@@ -318,7 +318,15 @@ export default class Platforms {
 				);
 			}
 
-			if (i === 0) this.player.draw();
+			const isCurrentPlat =
+				this.player.x > this.platsVisible[i].x &&
+				this.player.x + this.player.w <=
+					this.platsVisible[i].x + level.platforms[this.platsVisible[i].index].len;
+
+			if (!passedCurrentPlat && (isCurrentPlat || i === this.platsVisible.length - 1)) {
+				this.player.draw();
+				passedCurrentPlat = true;
+			}
 
 			if (level.platformH) {
 				this.ctx.drawImage(

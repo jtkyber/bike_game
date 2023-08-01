@@ -6,11 +6,7 @@ const levelOne: ILevel = {
 			y: 600,
 			len: 3000,
 			gapToNext: 0,
-			decor: [
-				{ name: 'startSign', xLocsOnPlatByPerc: [0.6] },
-				{ name: 'treeBack', xLocsOnPlatByPerc: [0.6] },
-			],
-			obsticles: [{ name: 'treeFront', xLocsOnPlatByPerc: [0.6] }],
+			decor: [{ name: 'startSign', xLocsOnPlatByPerc: [0.6] }],
 		},
 		{
 			y: 600,
@@ -23,7 +19,16 @@ const levelOne: ILevel = {
 			gapToNext: 0,
 		},
 		{ y: 600, len: 800, gapToNext: 0 },
-		{ y: 500, len: 2000, gapToNext: 0, obsticles: [{ name: 'rock2', xLocsOnPlatByPerc: [0.4] }] },
+		{
+			y: 500,
+			len: 2000,
+			gapToNext: 0,
+			decor: [{ name: 'treeBack', xLocsOnPlatByPerc: [0.7] }],
+			obsticles: [
+				{ name: 'rock2', xLocsOnPlatByPerc: [0.4] },
+				{ name: 'treeFront', xLocsOnPlatByPerc: [0.7] },
+			],
+		},
 		{ y: 700, len: 1200, gapToNext: 0 },
 		{ y: 450, len: 1000, gapToNext: 0, obsticles: [{ name: 'rock3', xLocsOnPlatByPerc: [0.8] }] },
 		{ y: 650, len: 1000, gapToNext: 0 },
