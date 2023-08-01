@@ -95,7 +95,7 @@ prepGame();
 
 document.addEventListener('keydown', e => {
 	switch (e.code) {
-		case 'Space':
+		case 'ArrowDown':
 			if (requestId) {
 				if (paused) {
 					paused = false;
@@ -115,10 +115,10 @@ document.addEventListener('keyup', e => {
 			} else {
 				paused = true;
 			}
-		case 'Space':
+		case 'ArrowDown':
 			player.jump();
 			break;
-		case 'KeyE':
+		case 'ArrowUp':
 			abilities.usePowerUp();
 			break;
 	}

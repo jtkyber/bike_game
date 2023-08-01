@@ -85,7 +85,7 @@ export default class Abilities {
 	private grabPowerUp(powerUp: string) {
 		switch (powerUp) {
 			case 'healthBoost':
-				this.hud.increaseHealth(20);
+				this.hud.increaseHealth(15);
 				break;
 			case 'invincibility':
 				if (this.currentPowerUp.name) return;
