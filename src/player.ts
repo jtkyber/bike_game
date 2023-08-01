@@ -29,6 +29,7 @@ export default class Player {
 	private lastObjectHit: string;
 	private isDucking: boolean;
 	public shieldActivated: boolean;
+	public hitWithShieldOn: boolean;
 
 	constructor(ctx: Context, world: HTMLCanvasElement, hud: Hud) {
 		this.ctx = ctx;
@@ -65,6 +66,7 @@ export default class Player {
 		this.lastObjectHit = '';
 		this.isDucking = false;
 		this.shieldActivated = false;
+		this.hitWithShieldOn = false;
 	}
 
 	public async setUp() {
@@ -90,27 +92,55 @@ export default class Player {
 		this.h = this.images.frame.height;
 	}
 
-	public changeToDamagedImgs(object: string) {
+	public onObjectHit(object: string) {
 		if (object === this.lastObjectHit) return;
 		this.lastObjectHit = object;
-		this.isBeingDamaged = true;
-		const flashInterval = 50;
 
-		setTimeout(() => {
-			this.isBeingDamaged = false;
+		if (this.shieldActivated) {
+			this.hitWithShieldOn = true;
+
 			setTimeout(() => {
-				this.isBeingDamaged = true;
+				this.hitWithShieldOn = false;
+			}, 100);
+		} else {
+			this.isBeingDamaged = true;
+			const flashInterval = 50;
+
+			setTimeout(() => {
+				this.isBeingDamaged = false;
 				setTimeout(() => {
-					this.isBeingDamaged = false;
+					this.isBeingDamaged = true;
 					setTimeout(() => {
-						this.isBeingDamaged = true;
+						this.isBeingDamaged = false;
 						setTimeout(() => {
-							this.isBeingDamaged = false;
+							this.isBeingDamaged = true;
+							setTimeout(() => {
+								this.isBeingDamaged = false;
+							}, flashInterval);
 						}, flashInterval);
 					}, flashInterval);
 				}, flashInterval);
 			}, flashInterval);
-		}, flashInterval);
+		}
+	}
+
+	private drawShield() {
+		const rOffset = 20;
+		this.ctx.fillStyle = this.hitWithShieldOn ? 'rgba(240, 240, 255, 0.4)' : 'rgba(220, 220, 255, 0.4)';
+		this.ctx.strokeStyle = this.hitWithShieldOn ? 'rgba(255, 255, 255, 1)' : 'rgba(220, 220, 255, 0.8)';
+		this.ctx.lineWidth = 2;
+		this.ctx.beginPath();
+		this.ctx.ellipse(
+			this.x + this.w / 2,
+			this.y + this.h / 2,
+			this.w / 2 + rOffset,
+			this.w / 2 + rOffset,
+			2 * Math.PI,
+			0,
+			2 * Math.PI
+		);
+		this.ctx.fill();
+		this.ctx.stroke();
 	}
 
 	public duck() {
@@ -216,25 +246,6 @@ export default class Player {
 			this.images.wheel.height - 0.5
 		);
 		this.ctx.restore();
-	}
-
-	private drawShield() {
-		const rOffset = 20;
-		this.ctx.fillStyle = 'rgba(220, 220, 255, 0.4)';
-		this.ctx.strokeStyle = 'rgba(220, 220, 255, 0.8)';
-		this.ctx.lineWidth = 2;
-		this.ctx.beginPath();
-		this.ctx.ellipse(
-			this.x + this.w / 2,
-			this.y + this.h / 2,
-			this.w / 2 + rOffset,
-			this.w / 2 + rOffset,
-			2 * Math.PI,
-			0,
-			2 * Math.PI
-		);
-		this.ctx.fill();
-		this.ctx.stroke();
 	}
 
 	public draw() {

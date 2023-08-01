@@ -67,15 +67,14 @@ export default class Collisions {
 		marginBot = 0,
 		object,
 	}: ICollisionArgs) {
-		if (this.ignoreObjectCollision) return;
 		if (
 			x1 + w1 >= x2 + marginLeft && // Check player right collision
 			x1 <= x2 + w2 - marginRight && // Check player left collision
 			y1 <= y2 + h2 - marginBot && // Check player top collision
 			y1 + h1 > y2 // Check player bottom collision
 		) {
-			this.hud.reduceHealth(object, 40);
-			this.player.changeToDamagedImgs(object);
+			this.player.onObjectHit(object);
+			if (!this.ignoreObjectCollision) this.hud.reduceHealth(object, 40);
 		}
 	}
 
