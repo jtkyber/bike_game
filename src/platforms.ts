@@ -202,8 +202,8 @@ export default class Platforms {
 						this.images[obsticles[i].name].height ||
 						this.world.height - (platYTop - this.images[obsticles[i].name].height + 10),
 					marginLeft: obsticles[i].name === 'treeFront' ? this.collisionMargin + 150 : this.collisionMargin,
-					marginRight: 180,
-					marginBot: 130,
+					marginRight: obsticles[i].name === 'treeFront' ? 180 : 0,
+					marginBot: obsticles[i].name === 'treeFront' ? 130 : 0,
 					object: `${obsticles[i].name}_${platIndex}_${obsticleXVals[j]}`,
 				});
 			}
