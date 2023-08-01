@@ -57,6 +57,7 @@ export default class Abilities {
 		switch (this.currentPowerUp.name) {
 			case 'invincibility':
 				this.collisions.ignoreObjectCollision = false;
+				this.player.shieldActivated = false;
 				break;
 			default:
 				break;
@@ -76,6 +77,7 @@ export default class Abilities {
 			case 'invincibility':
 				this.collisions.ignoreObjectCollision = true;
 				this.hud.usingPowerUp = true;
+				this.player.shieldActivated = true;
 				break;
 			default:
 				break;

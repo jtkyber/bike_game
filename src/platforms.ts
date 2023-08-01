@@ -64,10 +64,12 @@ export default class Platforms {
 			'../public/dirtPlat.png',
 			// Decor
 			'../public/startSign.png',
+			'../public/treeBack.png',
 			// Obsticles
 			'../public/rock1.png',
 			'../public/rock2.png',
 			'../public/rock3.png',
+			'../public/treeFront.png',
 		];
 		this.images = {};
 		this.bgImg1 = '';
@@ -154,13 +156,14 @@ export default class Platforms {
 			const imgSrc: HTMLImageElement = this.images[decor[i].name];
 			const decorXVals = decor[i].xLocsOnPlatByPerc;
 
-			for (let i = 0; i < decorXVals?.length; i++) {
+			// if (decor[i].name === 'treeBack') console.log(this.images[decor[i].name].width);
+			for (let j = 0; j < decorXVals?.length; j++) {
 				this.ctx.drawImage(
 					imgSrc,
-					platX + platLen * decorXVals[i],
-					platYTop - this.images[decor[i].name].height + 10,
+					platX + platLen * decorXVals[j],
+					platYTop + 10,
 					this.images[decor[i].name].width,
-					this.images[decor[i].name].height
+					-this.images[decor[i].name].height
 				);
 			}
 		}
@@ -176,20 +179,21 @@ export default class Platforms {
 		for (let i = 0; i < obsticles?.length; i++) {
 			const imgSrc: HTMLImageElement = this.images[obsticles[i].name];
 			const obsticleXVals = obsticles[i].xLocsOnPlatByPerc;
+			// if (obsticles[i].name === 'treeFront') console.log(this.images[obsticles[i].name].width);
 
-			for (let i = 0; i < obsticleXVals?.length; i++) {
+			for (let j = 0; j < obsticleXVals?.length; j++) {
 				this.ctx.drawImage(
 					imgSrc,
-					platX + platLen * obsticleXVals[i],
-					platYTop - this.images[obsticles[i].name].height + 10,
+					platX + platLen * obsticleXVals[j],
+					platYTop + 4,
 					this.images[obsticles[i].name].width,
-					this.images[obsticles[i].name].height
+					-this.images[obsticles[i].name].height
 				);
 
 				this.collisions.checkForCollision({
 					x1: this.player.x,
 					y1: this.player.y,
-					x2: platX + platLen * obsticleXVals[i],
+					x2: platX + platLen * obsticleXVals[j],
 					y2: platYTop - this.images[obsticles[i].name].height + 10,
 					w1: this.player.w,
 					h1: this.player.h,
@@ -197,8 +201,10 @@ export default class Platforms {
 					h2:
 						this.images[obsticles[i].name].height ||
 						this.world.height - (platYTop - this.images[obsticles[i].name].height + 10),
-					margin: this.collisionMargin,
-					object: `${obsticles[i].name}_${platIndex}_${obsticleXVals[i]}`,
+					marginLeft: obsticles[i].name === 'treeFront' ? this.collisionMargin + 150 : this.collisionMargin,
+					marginRight: 180,
+					marginBot: 130,
+					object: `${obsticles[i].name}_${platIndex}_${obsticleXVals[j]}`,
 				});
 			}
 		}
@@ -299,22 +305,9 @@ export default class Platforms {
 				this.gameObject.levels[this.platsVisible[i].level].platforms[this.platsVisible[i].index] || [];
 
 			if (platform?.decor) {
-				this.drawDecorForPlat(
-					platform.decor,
-					level.platforms[this.platsVisible[i].index].y,
-					this.platsVisible[i].x,
-					level.platforms[this.platsVisible[i].index].len
-				);
+				this.drawDecorForPlat(platform.decor, platform.y, this.platsVisible[i].x, platform.len);
 			}
-			if (platform?.obsticles) {
-				this.drawObsticleOnPlat(
-					platform.obsticles,
-					platform.y,
-					this.platsVisible[i].x,
-					platform.len,
-					this.platsVisible[i].index
-				);
-			}
+
 			if (platform?.powerUps) {
 				this.abilities.draw(
 					platform.powerUps,
@@ -324,6 +317,8 @@ export default class Platforms {
 					this.platsVisible[i].index
 				);
 			}
+
+			if (i === 0) this.player.draw();
 
 			if (level.platformH) {
 				this.ctx.drawImage(
@@ -361,6 +356,16 @@ export default class Platforms {
 				// 	this.world.height - level.platforms[plat.index].y
 				// );
 				// this.ctx.stroke();
+			}
+
+			if (platform?.obsticles) {
+				this.drawObsticleOnPlat(
+					platform.obsticles,
+					platform.y,
+					this.platsVisible[i].x,
+					platform.len,
+					this.platsVisible[i].index
+				);
 			}
 
 			const isColliding = this.collisions.checkForPlatCollision({

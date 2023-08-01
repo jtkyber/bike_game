@@ -6,7 +6,11 @@ const levelOne: ILevel = {
 			y: 600,
 			len: 3000,
 			gapToNext: 0,
-			decor: [{ name: 'startSign', xLocsOnPlatByPerc: [0.6] }],
+			decor: [
+				{ name: 'startSign', xLocsOnPlatByPerc: [0.6] },
+				{ name: 'treeBack', xLocsOnPlatByPerc: [0.6] },
+			],
+			obsticles: [{ name: 'treeFront', xLocsOnPlatByPerc: [0.6] }],
 		},
 		{
 			y: 600,

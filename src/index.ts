@@ -55,7 +55,7 @@ const gameLoop = () => {
 			player.speed = 0;
 		}
 		platforms.draw();
-		player.draw();
+		// Drawing player in Platforms class right before drawing obsticles
 		hud.draw();
 
 		if (hud.currentPowerUp.name && hud.powerUpPercentUsed >= 1) abilities.finishPowerUp();
@@ -95,7 +95,7 @@ prepGame();
 
 document.addEventListener('keydown', e => {
 	switch (e.code) {
-		case 'ArrowDown':
+		case 'ArrowUp':
 			if (requestId) {
 				if (paused) {
 					paused = false;
@@ -103,6 +103,9 @@ document.addEventListener('keydown', e => {
 					if (!player.loadingJump) player.loadingJump = true;
 				}
 			}
+			break;
+		case 'ArrowDown':
+			player.duck();
 			break;
 	}
 });
@@ -115,10 +118,13 @@ document.addEventListener('keyup', e => {
 			} else {
 				paused = true;
 			}
-		case 'ArrowDown':
+		case 'ArrowUp':
 			player.jump();
 			break;
-		case 'ArrowUp':
+		case 'ArrowDown':
+			player.stand();
+			break;
+		case 'ArrowRight':
 			abilities.usePowerUp();
 			break;
 	}

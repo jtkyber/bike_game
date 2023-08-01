@@ -15,7 +15,10 @@ export interface ICollisionArgs {
 	h1: number;
 	w2: number;
 	h2: number;
-	margin: number;
+	margin?: number;
+	marginLeft?: number;
+	marginBot?: number;
+	marginRight?: number;
 	object: string;
 }
 

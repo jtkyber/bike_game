@@ -27,6 +27,8 @@ export default class Player {
 	private images: any;
 	private isBeingDamaged: boolean;
 	private lastObjectHit: string;
+	private isDucking: boolean;
+	public shieldActivated: boolean;
 
 	constructor(ctx: Context, world: HTMLCanvasElement, hud: Hud) {
 		this.ctx = ctx;
@@ -52,13 +54,17 @@ export default class Player {
 		this.hud = hud;
 		this.imagePaths = [
 			'../public/frame.png',
+			'../public/frameDucked.png',
 			'../public/frameDamaged.png',
+			'../public/frameDuckedDamaged.png',
 			'../public/wheel.png',
 			'../public/wheelDamaged.png',
 		];
 		this.images = {};
 		this.isBeingDamaged = false;
 		this.lastObjectHit = '';
+		this.isDucking = false;
+		this.shieldActivated = false;
 	}
 
 	public async setUp() {
@@ -107,6 +113,22 @@ export default class Player {
 		}, flashInterval);
 	}
 
+	public duck() {
+		if (this.isDucking) return;
+		this.isDucking = true;
+		this.w = this.images.frameDucked.width;
+		this.h = this.images.frameDucked.height;
+		this.y += this.images.frame.height - this.images.frameDucked.height;
+	}
+
+	public stand() {
+		if (!this.isDucking) return;
+		this.isDucking = false;
+		this.w = this.images.frame.width;
+		this.h = this.images.frame.height;
+		this.y -= this.images.frame.height - this.images.frameDucked.height;
+	}
+
 	public land(y: number) {
 		if (this.rotation < 0) return;
 		this.isInAir = false;
@@ -143,12 +165,16 @@ export default class Player {
 	}
 
 	private drawFrame() {
-		// const yOffset = 5;
+		let frameImg: HTMLImageElement;
+		if (!this.isDucking) {
+			frameImg = this.isBeingDamaged ? this.images.frameDamaged : this.images.frame;
+		} else frameImg = this.isBeingDamaged ? this.images.frameDuckedDamaged : this.images.frameDucked;
+
 		this.ctx.save();
 		this.ctx.translate(this.rotCoordsForJump.x, this.rotCoordsForJump.y);
 		this.ctx.rotate((this.rotation * Math.PI) / 180);
 		this.ctx.drawImage(
-			this.isBeingDamaged ? this.images.frameDamaged : this.images.frame,
+			frameImg,
 			-this.images.wheel.width / 2,
 			-this.h + this.images.wheel.height / 2,
 			this.w,
@@ -192,6 +218,25 @@ export default class Player {
 		this.ctx.restore();
 	}
 
+	private drawShield() {
+		const rOffset = 20;
+		this.ctx.fillStyle = 'rgba(220, 220, 255, 0.4)';
+		this.ctx.strokeStyle = 'rgba(220, 220, 255, 0.8)';
+		this.ctx.lineWidth = 2;
+		this.ctx.beginPath();
+		this.ctx.ellipse(
+			this.x + this.w / 2,
+			this.y + this.h / 2,
+			this.w / 2 + rOffset,
+			this.w / 2 + rOffset,
+			2 * Math.PI,
+			0,
+			2 * Math.PI
+		);
+		this.ctx.fill();
+		this.ctx.stroke();
+	}
+
 	public draw() {
 		if (!this.images?.frame) return;
 		this.wheelRot += this.speed;
@@ -215,6 +260,8 @@ export default class Player {
 		// this.ctx.beginPath();
 		// this.ctx.rect(this.x, this.y, this.w, this.h);
 		// this.ctx.fill();
+
+		if (this.shieldActivated) this.drawShield();
 
 		this.rotCoordsForJump = {
 			x: this.x + this.images.wheel.width / 2,

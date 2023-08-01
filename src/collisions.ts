@@ -17,7 +17,18 @@ export default class Collisions {
 		this.ignoreObjectCollision = false;
 	}
 
-	public checkForPlatCollision({ x1, y1, x2, y2, w1, h1, w2, h2, margin, object }: ICollisionArgs): boolean {
+	public checkForPlatCollision({
+		x1,
+		y1,
+		x2,
+		y2,
+		w1,
+		h1,
+		w2,
+		h2,
+		margin = 0,
+		object,
+	}: ICollisionArgs): boolean {
 		const playerRightOfPlatLeft = x1 + w1 >= x2 + margin; // Player right side to right of plat left
 		const playerLeftOfPlatRight = x1 <= x2 + w2; // Player left side to left of plat right
 		const playerAbovePlatBot = y1 <= y2 + h2; //Player top above plat bottom
@@ -42,12 +53,25 @@ export default class Collisions {
 		return false;
 	}
 
-	public checkForCollision({ x1, y1, x2, y2, w1, h1, w2, h2, margin, object }: ICollisionArgs) {
+	public checkForCollision({
+		x1,
+		y1,
+		x2,
+		y2,
+		w1,
+		h1,
+		w2,
+		h2,
+		marginLeft = 0,
+		marginRight = 0,
+		marginBot = 0,
+		object,
+	}: ICollisionArgs) {
 		if (this.ignoreObjectCollision) return;
 		if (
-			x1 + w1 >= x2 + margin && // Check player right collision
-			x1 <= x2 + w2 && // Check player left collision
-			y1 <= y2 + h2 && // Check player top collision
+			x1 + w1 >= x2 + marginLeft && // Check player right collision
+			x1 <= x2 + w2 - marginRight && // Check player left collision
+			y1 <= y2 + h2 - marginBot && // Check player top collision
 			y1 + h1 > y2 // Check player bottom collision
 		) {
 			this.hud.reduceHealth(object, 40);
@@ -55,7 +79,7 @@ export default class Collisions {
 		}
 	}
 
-	public powerUpCollision({ x1, y1, x2, y2, w1, h1, w2, h2, margin, object }: ICollisionArgs): boolean {
+	public powerUpCollision({ x1, y1, x2, y2, w1, h1, w2, h2, margin = 0, object }: ICollisionArgs): boolean {
 		if (
 			x1 + w1 >= x2 + margin && // Check player right collision
 			x1 <= x2 + w2 && // Check player left collision
