@@ -23,7 +23,10 @@ export default class Abilities {
 		this.hud = hud;
 		this.collisions = collisions;
 		this.player = player;
-		this.imagePaths = ['../public/healthBoost.png', '../public/invincibility.png'];
+		this.imagePaths = [
+			'../public/images/powerups/healthBoost.png',
+			'../public/images/powerups/invincibility.png',
+		];
 		this.images = {};
 		this.collectedPowerUps = [];
 		this.currentPowerUp = {

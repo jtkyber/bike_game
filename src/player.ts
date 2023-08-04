@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import Hud from './hud';
 import { Context } from './types';
 
@@ -54,12 +55,12 @@ export default class Player {
 		this.speed = 0;
 		this.hud = hud;
 		this.imagePaths = [
-			'../public/frame.png',
-			'../public/frameDucked.png',
-			'../public/frameDamaged.png',
-			'../public/frameDuckedDamaged.png',
-			'../public/wheel.png',
-			'../public/wheelDamaged.png',
+			'../public/images/player/frame.png',
+			'../public/images/player/frameDucked.png',
+			'../public/images/player/frameDamaged.png',
+			'../public/images/player/frameDuckedDamaged.png',
+			'../public/images/player/wheel.png',
+			'../public/images/player/wheelDamaged.png',
 		];
 		this.images = {};
 		this.isBeingDamaged = false;
@@ -272,8 +273,6 @@ export default class Player {
 		// this.ctx.rect(this.x, this.y, this.w, this.h);
 		// this.ctx.fill();
 
-		if (this.shieldActivated) this.drawShield();
-
 		this.rotCoordsForJump = {
 			x: this.x + this.images.wheel.width / 2,
 			y: this.y + this.h - this.images.wheel.height / 2,
@@ -281,5 +280,6 @@ export default class Player {
 
 		this.drawWheels();
 		this.drawFrame();
+		if (this.shieldActivated) this.drawShield();
 	}
 }

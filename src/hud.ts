@@ -33,7 +33,7 @@ export default class Hud {
 		this.fps = 0;
 		this.framerate = framerate;
 		this.fpsEnabled = false;
-		this.imagePaths = ['../public/invincibility.png'];
+		this.imagePaths = ['../public/images/powerups/invincibility.png'];
 		this.images = {};
 		this.currentPowerUp = {
 			name: '',

@@ -57,19 +57,19 @@ export default class Platforms {
 		this.gameOver = false;
 		this.collisionMargin = 26;
 		this.imagePaths = [
-			'../public/bgLevel1.png',
-			'../public/bgLevel2.png',
+			'../public/images/backgrounds/bgLevel1.png',
+			'../public/images/backgrounds/bgLevel2.png',
 			// Platform Textures
-			'../public/woodPlat.png',
-			'../public/dirtPlat.png',
+			'../public/images/platforms/woodPlat.png',
+			'../public/images/platforms/dirtPlat.png',
 			// Decor
-			'../public/startSign.png',
-			'../public/treeBack.png',
+			'../public/images/decor/startSign.png',
+			'../public/images/decor/treeBack.png',
 			// Obsticles
-			'../public/rock1.png',
-			'../public/rock2.png',
-			'../public/rock3.png',
-			'../public/treeFront.png',
+			'../public/images/obsticles/rock1.png',
+			'../public/images/obsticles/rock2.png',
+			'../public/images/obsticles/rock3.png',
+			'../public/images/obsticles/treeFront.png',
 		];
 		this.images = {};
 		this.bgImg1 = '';
